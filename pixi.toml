@@ -1,0 +1,49 @@
+[workspace]
+name = "predicting-smartphone-addiction"
+version = "0.1.0"
+description = "Kaggle Playground Series S6E8 — Predicting Smartphone Addiction"
+channels = ["conda-forge"]
+platforms = ["win-64", "linux-64", "osx-arm64"]
+
+[dependencies]
+python = ">=3.11"
+# Notebooks
+marimo = "*"
+ipykernel = "*"
+# Data handling
+polars = "*"
+pandas = "*"
+pyarrow = "*"
+# ML & compute
+scikit-learn = "*"
+lightgbm = "*"
+xgboost = "*"
+joblib = "*"
+# Visualization
+altair = "*"
+# Utilities
+tqdm = "*"
+
+[pypi-dependencies]
+smartphone_addiction = { path = ".", editable = true }
+kaggle = "*"
+
+[feature.dev.dependencies]
+ruff = "*"
+ty = "*"
+pytest = "*"
+pytest-cov = "*"
+
+[tasks]
+lint      = "ruff check src tests notebooks"
+format    = "ruff format src tests notebooks"
+typecheck = "ty check src"
+test      = "pytest tests/ -v --tb=short"
+check     = { depends-on = ["lint", "typecheck", "test"] }
+# Competition data: requires ~/.kaggle/kaggle.json (see README)
+download  = "kaggle competitions download -c playground-series-s6e8 -p data/raw"
+extract   = "python -m zipfile -e data/raw/playground-series-s6e8.zip data/raw/"
+data      = { depends-on = ["download", "extract"] }
+
+[environments]
+default = { features = ["dev"], solve-group = "default" }
