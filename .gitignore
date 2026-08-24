@@ -1,0 +1,26 @@
+# pixi — pixi.lock IS committed (reproducibility guarantee); only the env dir is ignored
+.pixi/
+
+# competition data is never committed (Kaggle rules) — rebuild with `pixi run data`
+data/raw/*
+data/external/*
+!data/raw/.gitkeep
+!data/external/.gitkeep
+
+# generated submissions
+submissions/*.csv
+
+# Jupyter / marimo scratch outputs
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.egg-info/
+dist/
+.env
+*.pyc
+*.pyo
+.DS_Store
+
+# joblib cache
+.cache/
