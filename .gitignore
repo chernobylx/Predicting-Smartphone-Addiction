@@ -13,6 +13,8 @@ submissions/*.csv
 # large regenerable intermediates (eda_boot_*.parquet is ~3.5GB)
 data/processed/*.parquet
 data/processed/*.npz
+data/processed/*.npy
+data/processed/members/
 
 # catboost writes a training-log dir into cwd on every fit
 catboost_info/
