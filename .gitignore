@@ -12,6 +12,10 @@ submissions/*.csv
 
 # large regenerable intermediates (eda_boot_*.parquet is ~3.5GB)
 data/processed/*.parquet
+data/processed/*.npz
+
+# catboost writes a training-log dir into cwd on every fit
+catboost_info/
 
 # Jupyter / marimo scratch outputs
 .ipynb_checkpoints/
