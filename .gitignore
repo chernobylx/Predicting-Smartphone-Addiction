@@ -10,8 +10,15 @@ data/external/*
 # generated submissions
 submissions/*.csv
 
+# large regenerable intermediates (eda_boot_*.parquet is ~3.5GB)
+data/processed/*.parquet
+
 # Jupyter / marimo scratch outputs
 .ipynb_checkpoints/
+notebooks/__marimo__/
+
+# editor / IDE
+.posit/
 
 # Python
 __pycache__/

@@ -14,9 +14,17 @@ packages = ["src/smartphone_addiction"]
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+# eda.py is an interactive scratch workbench, not shipped code: it deliberately keeps
+# imports staged for cells that are commented out. Linting it fights the way it is used.
+extend-exclude = ["notebooks/eda.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# marimo cells display their last expression; bare expressions are idiomatic.
+# E501: markdown tables inside mo.md cells cannot be wrapped.
+"notebooks/*.py" = ["B018", "E501"]
 
 [tool.ty.environment]
 python-version = "3.11"
@@ -24,3 +32,6 @@ python-version = "3.11"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+
+[tool.marimo.runtime]
+output_max_bytes = 25_000_000
