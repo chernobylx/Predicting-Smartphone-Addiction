@@ -16,17 +16,32 @@ pandas = "*"
 pyarrow = "*"
 # ML & compute
 scikit-learn = "*"
-lightgbm = "*"
 xgboost = "*"
 joblib = "*"
 # Visualization
 altair = "*"
 # Utilities
 tqdm = "*"
+pydantic-ai-slim = ">=2.33.0,<3"
+anthropic = ">=1.0.0,<2"
+mcp = ">=2.1.0,<3"
+vegafusion = ">=2.0.3,<3"
+vl-convert-python = ">=2.0.0rc1,<3"
+python-lsp-server = ">=1.15.0,<2"
+websockets = ">=17.0.1,<18"
+python-lsp-ruff = ">=2.3.3,<3"
+openai = ">=3.3.0,<4"
+pip = ">=26.2.1,<27"
+seaborn = ">=0.13.2,<0.14"
+umap-learn = ">=0.5.12,<0.6"
+flaml = ">=2.6.0,<3"
+catboost = ">=1.2.10,<2"
 
 [pypi-dependencies]
 smartphone_addiction = { path = ".", editable = true }
 kaggle = "*"
+lightgbm = "<4.7"
+miceforest = ">=6"
 
 [feature.dev.dependencies]
 ruff = "*"
