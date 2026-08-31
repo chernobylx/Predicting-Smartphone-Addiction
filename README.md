@@ -21,8 +21,10 @@ decision-threshold tuning are irrelevant to the score, and rank-based ensembling
 |---|---|---|---|
 | [`baseline.py`](src/smartphone_addiction/baseline.py) — raw features, no imputation | 0.963947 | 0.96541 | 1761 / 3353 |
 | [`pipeline.py`](src/smartphone_addiction/pipeline.py) — representation pipeline | 0.968069 | 0.96947 | 904 |
-| 7-member hill-climb rank stack | 0.968630 | 0.96982 | 821 |
-| **14-member stack (incl. XGBoost)** | **0.968738** | **0.96994** | **777 (top 23.2%)** |
+| 7-member stack | 0.968630 | 0.96982 | 821 |
+| 14-member stack (+ XGBoost) | 0.968738 | 0.96994 | 777 |
+| 18-member stack (+ ES-reclaim, NN) | 0.968955 | 0.97008 | 740 |
+| **26-member stack (+ feature subsets)** | **0.969010** | **0.97013** | **728 (top 21.7%)** |
 
 The CV→LB offset is stable at **+0.0012 ± 0.0001** across every submission, so CV is a
 trustworthy selection instrument and leaderboard probing was never needed.
@@ -67,6 +69,31 @@ Neighbourhood TE improved its own feature by +0.0025 measured standalone and del
 AUC and *hurts* when transferred. ExtraTrees was the most decorrelated member and earned
 zero weight. The useful question is never "does this carry signal" but "does this let the
 model ask something it currently cannot".
+
+### Stacking: what actually decorrelates
+
+[`stack.py`](src/smartphone_addiction/stack.py) runs greedy hill-climbing with replacement
+over 29 candidate members, with weights fitted on 4 folds and scored on the held-out 5th —
+fitting weights on the OOF you then report is the ensembling trap, and it inflates by more
+than the entire gain being measured.
+
+Which members earned weight is the interesting part:
+
+| Diversity source | Result |
+|---|---|
+| **Feature subsets** — `struct_imp` (no value encoding), `no_te` (no target encoding) | **0.133 combined weight** |
+| **Different model class** — embedding NN, 0.96 correlation vs 0.995+ among trees | **0.100 combined weight** |
+| Hyperparameter variants — `linear_tree`, `extra_trees`, DART, ExtraTrees | **zero weight, all four** |
+
+Diversity has to come from *what the model sees*, not *how it fits*. `linear_tree` was only
+−0.0008 behind with the second-lowest correlation of any tree and still earned nothing,
+while `struct_imp` — denied our single largest feature win — took the fifth-largest weight.
+
+Two further measured results on ensembling. Seed-averaging the NN raised its solo AUC by
++0.0044 but raised its correlation from 0.96 to 0.978, so the stack gained only +0.000019:
+averaging removed exactly the idiosyncratic variance that made it useful. And entering the
+three seeds as *separate* members instead earned zero, because their average was already in
+the pool and strictly dominates them.
 
 ### Leakage discipline
 
@@ -143,6 +170,7 @@ pixi run marimo edit notebooks/<name>.py
 ```bash
 pixi run python -m smartphone_addiction.baseline   # raw-feature baseline  -> submissions/lgbm_baseline.csv
 pixi run python -m smartphone_addiction.pipeline   # full pipeline         -> submissions/lgbm_pipeline.csv
+pixi run python -m smartphone_addiction.stack --submit  # hill-climb stack   -> submissions/lgbm_stack.csv
 ```
 
 Both are deterministic at seed 42 and write out-of-fold predictions to `data/processed/`
