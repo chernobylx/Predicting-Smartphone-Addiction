@@ -1,0 +1,402 @@
+<title>Measured and Rejected</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#f6f8fb; --surface:#ffffff; --surface-2:#eef2f8;
+  --ink:#0f151d; --body:#26303d; --muted:#5b6675; --faint:#8592a3;
+  --rule:#dde3ec; --rule-strong:#c4cddb;
+  --accent:#2a78d6; --accent-ink:#1b5296; --accent-wash:#e8f0fc;
+  --pos:#1f6fbf; --neg:#c0392f; --neg-wash:#fbeceb;
+  --chart-surface:#ffffff;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0f1319; --surface:#161b23; --surface-2:#1d232c;
+    --ink:#e9eef5; --body:#c5cedb; --muted:#93a0b1; --faint:#6f7d8f;
+    --rule:#262d38; --rule-strong:#333c49;
+    --accent:#5a9df0; --accent-ink:#8dbcf6; --accent-wash:#16283f;
+    --pos:#5a9df0; --neg:#e8756c; --neg-wash:#33201e;
+    --chart-surface:#161b23;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0f1319; --surface:#161b23; --surface-2:#1d232c;
+  --ink:#e9eef5; --body:#c5cedb; --muted:#93a0b1; --faint:#6f7d8f;
+  --rule:#262d38; --rule-strong:#333c49;
+  --accent:#5a9df0; --accent-ink:#8dbcf6; --accent-wash:#16283f;
+  --pos:#5a9df0; --neg:#e8756c; --neg-wash:#33201e;
+  --chart-surface:#161b23;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--body);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:16px; line-height:1.65; margin:0;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px 96px}
+.col{max-width:660px}
+h1,h2,h3{color:var(--ink); text-wrap:balance; margin:0}
+h1{font-family:Newsreader,Georgia,serif; font-weight:600; font-size:clamp(2.1rem,5vw,3.1rem); line-height:1.08; letter-spacing:-.015em}
+h2{font-family:Newsreader,Georgia,serif; font-weight:600; font-size:clamp(1.45rem,3vw,1.85rem); line-height:1.2; letter-spacing:-.01em}
+h3{font-family:"IBM Plex Sans",sans-serif; font-weight:600; font-size:1rem; letter-spacing:.01em}
+p{margin:0}
+a{color:var(--accent-ink); text-underline-offset:2px; text-decoration-thickness:1px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:3px}
+
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; font-weight:500;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--faint);
+}
+.stack{display:flex; flex-direction:column}
+.g8{gap:8px} .g12{gap:12px} .g16{gap:16px} .g24{gap:24px} .g32{gap:32px} .g56{gap:56px}
+
+/* ---- masthead ---- */
+header.mast{padding:72px 0 40px; border-bottom:1px solid var(--rule)}
+.lede{font-size:1.12rem; color:var(--muted); max-width:56ch}
+.readout{
+  display:flex; flex-wrap:wrap; gap:0; margin-top:28px;
+  border:1px solid var(--rule); border-radius:6px; background:var(--surface); overflow:hidden;
+}
+.readout div{padding:14px 20px; border-right:1px solid var(--rule); flex:1 1 auto; min-width:132px}
+.readout div:last-child{border-right:0}
+.readout .k{display:block; font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--faint)}
+.readout .v{display:block; font-family:"IBM Plex Mono",monospace; font-size:1.28rem; color:var(--ink); margin-top:3px}
+
+/* ---- thesis ---- */
+.thesis{
+  border-left:3px solid var(--accent); padding:4px 0 4px 22px; margin:56px 0 0;
+  font-family:Newsreader,Georgia,serif; font-size:1.3rem; line-height:1.45; color:var(--ink);
+}
+.thesis em{font-style:italic; color:var(--accent-ink)}
+
+section{padding-top:56px}
+.section-head{display:flex; flex-direction:column; gap:6px; margin-bottom:20px}
+
+/* ---- tables ---- */
+.scroll{overflow-x:auto; border:1px solid var(--rule); border-radius:6px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.87rem}
+th,td{text-align:left; padding:9px 14px; border-bottom:1px solid var(--rule); vertical-align:top}
+thead th{
+  font-family:"IBM Plex Mono",monospace; font-size:.68rem; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--faint); font-weight:500; white-space:nowrap;
+  background:var(--surface-2);
+}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
+tr.best td{background:var(--accent-wash)}
+tr.best td:first-child{font-weight:600; color:var(--ink)}
+
+/* ---- delta chips: sign and floor-crossing carried by form ---- */
+.d{
+  font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums;
+  font-size:.8rem; padding:1px 7px; border-radius:3px; white-space:nowrap;
+  border:1px solid transparent; display:inline-block;
+}
+.d.up{color:var(--pos); background:var(--accent-wash)}
+.d.down{color:var(--neg); background:var(--neg-wash)}
+.d.nil{color:var(--faint); background:var(--surface-2); border-color:var(--rule)}
+.d.nil::after{content:" · noise"; letter-spacing:.02em}
+
+/* ---- charts ---- */
+figure{margin:28px 0 0; display:flex; flex-direction:column; gap:10px}
+.plot{overflow-x:auto; background:var(--chart-surface); border:1px solid var(--rule); border-radius:6px; padding:14px}
+figcaption{font-size:.83rem; color:var(--muted); max-width:64ch}
+.vega-embed summary{display:none !important}
+
+.note{
+  background:var(--surface); border:1px solid var(--rule); border-left:3px solid var(--rule-strong);
+  border-radius:0 6px 6px 0; padding:18px 22px; font-size:.93rem;
+}
+.note.open{border-left-color:var(--accent)}
+.note h3{margin-bottom:6px}
+
+footer{margin-top:72px; padding-top:24px; border-top:1px solid var(--rule); font-size:.85rem; color:var(--faint)}
+code{font-family:"IBM Plex Mono",monospace; font-size:.88em; background:var(--surface-2); padding:1px 5px; border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{animation:none !important; transition:none !important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast stack g16">
+  <span class="eyebrow">Kaggle Playground Series &middot; Season 6, Episode 8</span>
+  <h1>Measured and Rejected</h1>
+  <p class="lede">A ledger of everything that was tried on 691,369 rows of smartphone-usage
+  data — including, mostly, the things that turned out to be worth nothing.</p>
+  <div class="readout">
+    <div><span class="k">Public LB</span><span class="v">0.97013</span></div>
+    <div><span class="k">Rank</span><span class="v">728 / 3353</span></div>
+    <div><span class="k">Percentile</span><span class="v">Top 21.7%</span></div>
+    <div><span class="k">Metric</span><span class="v">ROC-AUC</span></div>
+  </div>
+</header>
+
+<p class="thesis col">Standalone strength does not predict incremental value. The useful
+question is never <em>does this carry signal</em> — it is <em>does this let the model ask
+something it currently cannot.</em></p>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">01 &middot; The problem</span>
+    <h2>A saturated binary classification</h2>
+  </div>
+  <div class="col stack g16">
+    <p>Predict <code>addicted_label</code> from twelve behavioural features. Because the
+    metric is AUC, only the <em>ranking</em> of predictions matters: calibration and
+    threshold tuning are irrelevant to the score, and rank-based ensembling is well
+    motivated. The field was tight — two hundred teams spanned 8&times;10<sup>-5</sup>.</p>
+  </div>
+  <div class="scroll" style="margin-top:20px">
+    <table>
+      <tbody>
+        <tr><th>Training data</th><td class="num">691,369 rows &times; 12 features</td><td>9 numeric, 3 categorical</td></tr>
+        <tr><th>Class balance</th><td class="num">70.9% positive</td><td>No resampling used</td></tr>
+        <tr><th>Missingness</th><td class="num">4–20% per feature</td><td>61.1% of rows have at least one null</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">02 &middot; Results</span>
+    <h2>Six submissions, and an instrument worth trusting</h2>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Submission</th><th class="num">CV (OOF)</th><th class="num">Public LB</th><th class="num">Rank</th></tr></thead>
+      <tbody>
+        <tr><td>Baseline — raw features, no imputation</td><td class="num">0.963947</td><td class="num">0.96541</td><td class="num">1761</td></tr>
+        <tr><td>Representation pipeline</td><td class="num">0.968069</td><td class="num">0.96947</td><td class="num">904</td></tr>
+        <tr><td>7-member stack</td><td class="num">0.968630</td><td class="num">0.96982</td><td class="num">821</td></tr>
+        <tr><td>14-member stack (+ XGBoost)</td><td class="num">0.968738</td><td class="num">0.96994</td><td class="num">777</td></tr>
+        <tr><td>18-member stack (+ ES-reclaim, NN)</td><td class="num">0.968955</td><td class="num">0.97008</td><td class="num">740</td></tr>
+        <tr class="best"><td>26-member stack (+ feature subsets)</td><td class="num">0.969010</td><td class="num">0.97013</td><td class="num">728</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <figure>
+    <div class="plot" id="p-cv"></div>
+    <figcaption>CV never disagreed with the leaderboard about the direction of a change, so
+    leaderboard probing was never needed. The offset is <strong>+0.00125 mean, sd
+    0.00015</strong> — and it is not a constant: it falls monotonically as the stack grows,
+    which is what an ensemble buying less on the public split than in-fold looks like. The
+    check that matters is that structural change moved both together: CV +0.00412 produced
+    LB +0.00406.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">03 &middot; What worked</span>
+    <h2>Representation, not tuning</h2>
+  </div>
+  <figure>
+    <div class="plot" id="p-gain"></div>
+    <figcaption>Every step measured as a paired arm on identical folds.</figcaption>
+  </figure>
+  <div class="scroll" style="margin-top:24px">
+    <table>
+      <thead><tr><th>Mechanism</th><th class="num">Gain</th><th>Why it works</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>max_bin</code> 255 &rarr; 2047</td>
+          <td class="num"><span class="d up">+0.00215</span></td>
+          <td>Six of nine numeric columns have more distinct values than LightGBM's default 255 bins — <code>weekend_screen_time</code> has 1460. The label rule has hard steps at exact 2-decimal values; at 255 bins the bucket straddling <code>daily = 8.00</code> holds ~2,300 rows the model cannot separate.</td>
+        </tr>
+        <tr>
+          <td>Value-level encoding</td>
+          <td class="num"><span class="d up">+0.00122</span></td>
+          <td><code>notifications_per_day</code> has raw univariate AUC 0.5079 but <strong>0.7486</strong> target-encoded. Adjacent integer values differ in target rate by 0.22 against a sampling sd of 0.008 — these columns are lookup keys, not quantities.</td>
+        </tr>
+        <tr>
+          <td>Generator structure</td>
+          <td class="num"><span class="d up">+0.00105</span></td>
+          <td><code>daily &ge; social + gaming + work</code> holds for <strong>100.000%</strong> of complete rows, so the residual is a real hidden quantity and, where a term is missing, the constraint <em>bounds</em> it. A four-term linear combination is the one thing axis-aligned trees provably cannot construct.</td>
+        </tr>
+        <tr>
+          <td>Imputation as augmentation</td>
+          <td class="num"><span class="d up">+0.00031</span></td>
+          <td>Imputed columns <em>alongside</em> the NaN-bearing originals. Replacing them instead measures negative: a learned per-split default direction beats a point estimate.</td>
+        </tr>
+        <tr>
+          <td>Hill-climb rank stack</td>
+          <td class="num"><span class="d up">+0.00024</span></td>
+          <td>Greedy selection with replacement, weights fitted on 4 folds and scored on the 5th.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">04 &middot; What didn't</span>
+    <h2>The list is the point</h2>
+  </div>
+  <div class="col">
+    <p>In a saturated model most plausible ideas are worth nothing, and knowing which is
+    exactly what the ledger buys. Everything below is a paired same-fold comparison against
+    a measured resolution floor of &plusmn;0.00014.</p>
+  </div>
+  <figure>
+    <div class="plot" id="p-rej"></div>
+    <figcaption>Blue helped, red hurt, and the grey band is the noise floor. Most of the
+    list sits inside it.</figcaption>
+  </figure>
+  <div class="scroll" style="margin-top:24px">
+    <table>
+      <thead><tr><th>Idea</th><th class="num">Effect</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Hyperparameter search (<code>num_leaves</code> 31/63/255)</td><td class="num"><span class="d nil">span 0.00046</span></td><td>Under one fold sd</td></tr>
+        <tr><td>Lower learning rate (0.03 &rarr; 0.015)</td><td class="num"><span class="d up">+0.00019</span></td><td>Barely clears the floor</td></tr>
+        <tr><td>LightGBM + XGBoost blend on raw features</td><td class="num"><span class="d nil">+0.00011</span></td><td>Rank correlation 0.99542</td></tr>
+        <tr><td>Neighbourhood-shrunk target encoding</td><td class="num"><span class="d nil">+0.00004</span></td><td>Improved its own feature by +0.0025 standalone</td></tr>
+        <tr><td>Capacity re-tune on the wide matrix (127 leaves)</td><td class="num"><span class="d nil">+0.00001</span></td><td>&mdash;</td></tr>
+        <tr><td><code>init_score</code> from TE logit — top-2 / all 9</td><td class="num"><span class="d nil">+0.00001</span> <span class="d down">&minus;0.00027</span></td><td>More columns, actively worse</td></tr>
+        <tr><td>Appending <code>original.csv</code> rows to training</td><td class="num"><span class="d nil">&minus;0.00004</span></td><td>4/5 folds worse</td></tr>
+        <tr><td>DART boosting</td><td class="num"><span class="d down">&minus;0.00020</span></td><td>Stack weight 0</td></tr>
+        <tr><td>Ordinal transfer feature from <code>original.csv</code></td><td class="num"><span class="d down">&minus;0.00024</span></td><td>5/5 folds worse — despite recovering the label at 0.9893 AUC</td></tr>
+        <tr><td>LightGBM <code>extra_trees</code></td><td class="num"><span class="d down">&minus;0.00044</span></td><td>Stack weight 0</td></tr>
+        <tr><td>LightGBM <code>linear_tree</code></td><td class="num"><span class="d down">&minus;0.00081</span></td><td>Stack weight 0</td></tr>
+        <tr><td>Missingness indicators / null counts</td><td class="num"><span class="d nil">AUC 0.5017</span></td><td>MCAR, inert</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">05 &middot; Ensembling</span>
+    <h2>What actually decorrelates</h2>
+  </div>
+  <figure>
+    <div class="plot" id="p-div"></div>
+    <figcaption>Combined stack weight by where the diversity came from, over 29 candidate
+    members.</figcaption>
+  </figure>
+  <div class="col stack g16" style="margin-top:24px">
+    <p>Diversity has to come from <em>what the model sees</em>, not <em>how it fits</em>.
+    <code>linear_tree</code> was only &minus;0.0008 behind with the second-lowest correlation
+    of any tree and still earned nothing, while <code>struct_imp</code> — denied the single
+    largest feature win — took the fifth-largest weight.</p>
+    <p>Two further results. Seed-averaging the neural member raised its solo AUC by +0.0044
+    but raised its correlation from 0.96 to 0.978, so the stack gained +0.000019: averaging
+    removed exactly the idiosyncratic variance that made it useful. Entering the three seeds
+    as <em>separate</em> members instead earned zero, because their average was already in
+    the pool and strictly dominates them.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">06 &middot; Discipline</span>
+    <h2>The one component that touches the label</h2>
+  </div>
+  <div class="col stack g16">
+    <p>Target encoding is nested twice: an outer fold's validation rows are encoded only from
+    that fold's training rows, and those training rows are encoded through an inner 5-fold so
+    no row contributes to its own encoding. Early stopping runs on a per-fold inner slice,
+    never on the rows being scored. Stack weights are fitted on 4 folds and scored on the 5th
+    — fitting weights on the OOF you then report is the ensembling trap, and it inflates by
+    more than the entire gain being measured.</p>
+    <div class="note">
+      <h3>Two things hold that claim up</h3>
+      <p>Empirically, CV +0.00412 produced LB +0.00406 — a leaking encoder moves CV without
+      moving the leaderboard. And the test suite runs the whole target-encoding path under a
+      <strong>shuffled label</strong>, where it must score chance. An encoder that lets a row
+      see its own label cannot pass that.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">07 &middot; Honesty</span>
+    <h2>What reproduces, and what does not</h2>
+  </div>
+  <div class="col stack g16">
+    <p>The 0.97013 score <strong>does not reproduce</strong> from the repository. That
+    submission drew 26 members from 29 candidate arms assembled over the competition; the
+    full set of recipes was never committed, and one weight-earning member was an embedding
+    neural network whose framework is not a project dependency. Those arms are gone.</p>
+    <p>What the repository rebuilds instead is a documented, reduced member set — four
+    feature subsets plus XGBoost and CatBoost for model-class diversity — chosen to reproduce
+    the <em>finding</em> rather than the score. The four zero-weight hyperparameter variants
+    are absent because they were refuted, not because they were overlooked. Everything else
+    on this page — baseline, pipeline, gain decomposition, leakage tests — reproduces
+    exactly.</p>
+    <div class="note open">
+      <h3>Still open</h3>
+      <p>A comparison against the competition's 1st-place solution is pending publication of
+      the winner's write-up. The axes worth comparing are already fixed by this ledger: did
+      their gain come from representation or from scale; did they find the generator
+      constraint; did anyone else raise <code>max_bin</code> past 255; and where did their
+      ensemble diversity come from.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="col">
+  <p>Every figure on this page is drawn from the ledger, and the CV&rarr;LB offset is
+  computed as a subtraction of two ledger columns rather than transcribed — so a chart
+  cannot disagree with its source.</p>
+</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vega/5.30.0/vega.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vega-lite/5.20.1/vega-lite.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vega-embed/6.26.0/vega-embed.min.js"></script>
+<script>
+const SPECS = {"cv-lb-offset": {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300, "stroke": null}, "axis": {"domain": false, "grid": true, "gridColor": "#e6e5e1", "gridWidth": 1, "labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "tickColor": "#e6e5e1", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11, "titleFontWeight": "normal"}, "legend": {"labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "symbolStrokeWidth": 0, "symbolType": "square", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11}, "text": {"font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"}, "title": {"anchor": "start", "color": "#0b0b0b", "dy": -6, "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "fontSize": 13, "fontWeight": 600}}, "vconcat": [{"data": {"name": "data-8b7a0832f17e4252c6b1447778fa8d50"}, "mark": {"type": "line", "point": {"filled": true, "size": 60}, "strokeWidth": 2}, "encoding": {"color": {"field": "kind", "legend": {"direction": "horizontal", "fillColor": "#fcfcfb", "orient": "bottom-right", "padding": 6}, "scale": {"domain": ["CV (OOF)", "Public LB"], "range": ["#2a78d6", "#eb6834"]}, "title": null, "type": "nominal"}, "tooltip": [{"field": "submission", "type": "nominal"}, {"field": "note", "type": "nominal"}, {"field": "kind", "type": "nominal"}, {"field": "auc", "format": ".6f", "type": "quantitative"}, {"field": "rank", "type": "quantitative"}], "x": {"axis": {"labelAngle": 0}, "field": "submission", "sort": ["baseline", "pipeline", "stack-7", "stack-14", "stack-18", "stack-26"], "title": null, "type": "nominal"}, "y": {"field": "auc", "scale": {"nice": true, "zero": false}, "title": "ROC-AUC", "type": "quantitative"}}, "height": 190, "title": "CV tracks the leaderboard, submission after submission", "width": 520}, {"layer": [{"mark": {"type": "rule", "color": "#c8c7c2", "strokeWidth": 1}, "encoding": {"y": {"field": "m", "scale": {"domain": [0.001, 0.0016], "nice": false, "zero": false}, "title": "LB - CV", "type": "quantitative"}}}, {"mark": {"type": "text", "align": "left", "baseline": "bottom", "color": "#52514e", "dy": -3, "fontSize": 10}, "encoding": {"text": {"field": "label", "type": "nominal"}, "x": {"value": 3}, "y": {"field": "m", "scale": {"domain": [0.001, 0.0016], "nice": false, "zero": false}, "type": "quantitative"}}}, {"data": {"name": "data-b5f1a6382b3eba81267fcb0f8adb6393"}, "mark": {"type": "line", "color": "#2a78d6", "point": {"filled": true, "size": 60}, "strokeWidth": 2}, "encoding": {"tooltip": [{"field": "submission", "type": "nominal"}, {"field": "offset", "format": ".6f", "type": "quantitative"}], "x": {"axis": {"labelAngle": 0}, "field": "submission", "sort": ["baseline", "pipeline", "stack-7", "stack-14", "stack-18", "stack-26"], "title": null, "type": "nominal"}, "y": {"axis": {"format": ".4f"}, "field": "offset", "scale": {"domain": [0.001, 0.0016], "nice": false, "zero": false}, "title": "LB - CV", "type": "quantitative"}}}], "data": {"name": "data-2428b7422efb16dda62b10185c16e0bc"}, "height": 120, "title": "The gap never inverts, but it is not constant: it narrows", "width": 520}], "resolve": {"scale": {"x": "shared"}}, "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json", "datasets": {"data-8b7a0832f17e4252c6b1447778fa8d50": [{"submission": "baseline", "note": "raw features", "kind": "CV (OOF)", "auc": 0.963947, "rank": 1761}, {"submission": "baseline", "note": "raw features", "kind": "Public LB", "auc": 0.96541, "rank": 1761}, {"submission": "pipeline", "note": "representation", "kind": "CV (OOF)", "auc": 0.968069, "rank": 904}, {"submission": "pipeline", "note": "representation", "kind": "Public LB", "auc": 0.96947, "rank": 904}, {"submission": "stack-7", "note": "7 members", "kind": "CV (OOF)", "auc": 0.96863, "rank": 821}, {"submission": "stack-7", "note": "7 members", "kind": "Public LB", "auc": 0.96982, "rank": 821}, {"submission": "stack-14", "note": "+ XGBoost", "kind": "CV (OOF)", "auc": 0.968738, "rank": 777}, {"submission": "stack-14", "note": "+ XGBoost", "kind": "Public LB", "auc": 0.96994, "rank": 777}, {"submission": "stack-18", "note": "+ ES-reclaim, NN", "kind": "CV (OOF)", "auc": 0.968955, "rank": 740}, {"submission": "stack-18", "note": "+ ES-reclaim, NN", "kind": "Public LB", "auc": 0.97008, "rank": 740}, {"submission": "stack-26", "note": "+ feature subsets", "kind": "CV (OOF)", "auc": 0.96901, "rank": 728}, {"submission": "stack-26", "note": "+ feature subsets", "kind": "Public LB", "auc": 0.97013, "rank": 728}], "data-2428b7422efb16dda62b10185c16e0bc": [{"m": 0.0012501666666666668, "label": "mean +0.00125"}], "data-b5f1a6382b3eba81267fcb0f8adb6393": [{"submission": "baseline", "offset": 0.001463, "rank": 1761}, {"submission": "pipeline", "offset": 0.001401, "rank": 904}, {"submission": "stack-7", "offset": 0.00119, "rank": 821}, {"submission": "stack-14", "offset": 0.001202, "rank": 777}, {"submission": "stack-18", "offset": 0.001125, "rank": 740}, {"submission": "stack-26", "offset": 0.00112, "rank": 728}]}}, "gain-decomposition": {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300, "stroke": null}, "axis": {"domain": false, "grid": true, "gridColor": "#e6e5e1", "gridWidth": 1, "labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "tickColor": "#e6e5e1", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11, "titleFontWeight": "normal"}, "legend": {"labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "symbolStrokeWidth": 0, "symbolType": "square", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11}, "text": {"font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"}, "title": {"anchor": "start", "color": "#0b0b0b", "dy": -6, "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "fontSize": 13, "fontWeight": 600}}, "layer": [{"data": {"name": "data-2221a737b704aac2449674f8e76fd622"}, "mark": {"type": "rule", "color": "#c8c7c2", "strokeWidth": 1}, "encoding": {"y": {"field": "level", "scale": {"domain": [0.9635, 0.9695], "nice": false}, "type": "quantitative"}}}, {"layer": [{"data": {"name": "data-c27f92a0d57eef579862ec054afb9fba"}, "mark": {"type": "text", "align": "right", "baseline": "bottom", "color": "#52514e", "dy": -3, "fontSize": 10}, "encoding": {"text": {"field": "label", "type": "nominal"}, "x": {"value": 515}, "y": {"field": "level", "scale": {"domain": [0.9635, 0.9695], "nice": false}, "type": "quantitative"}}}, {"data": {"name": "data-4932c5344b3e052c596cbf0ce897318c"}, "mark": {"type": "text", "align": "left", "baseline": "bottom", "color": "#52514e", "dy": -3, "fontSize": 10}, "encoding": {"text": {"field": "label", "type": "nominal"}, "x": {"value": 3}, "y": {"field": "level", "scale": {"domain": [0.9635, 0.9695], "nice": false}, "type": "quantitative"}}}]}, {"data": {"name": "data-bb5678e8c4a5d2c0ce78d819ad61cc69"}, "mark": {"type": "bar", "color": "#2a78d6", "cornerRadius": 3, "size": 30}, "encoding": {"tooltip": [{"field": "step", "type": "nominal"}, {"field": "delta", "format": "+.5f", "type": "quantitative"}, {"field": "end", "format": ".6f", "type": "quantitative"}], "x": {"axis": {"labelAngle": -30, "labelLimit": 150}, "field": "step", "sort": ["max_bin 255 -> 2047", "value-level encoding", "generator structure", "imputation as augmentation", "hill-climb rank stack", "unattributed residual"], "title": null, "type": "nominal"}, "y": {"axis": {"format": ".4f"}, "field": "start", "scale": {"domain": [0.9635, 0.9695], "nice": false}, "title": "OOF AUC", "type": "quantitative"}, "y2": {"field": "end"}}}, {"data": {"name": "data-bb5678e8c4a5d2c0ce78d819ad61cc69"}, "mark": {"type": "text", "align": "center", "baseline": "bottom", "color": "#52514e", "dy": -5, "fontSize": 10}, "encoding": {"text": {"field": "delta", "format": "+.5f", "type": "quantitative"}, "x": {"axis": {"labelAngle": -30, "labelLimit": 150}, "field": "step", "sort": ["max_bin 255 -> 2047", "value-level encoding", "generator structure", "imputation as augmentation", "hill-climb rank stack", "unattributed residual"], "title": null, "type": "nominal"}, "y": {"field": "end", "scale": {"domain": [0.9635, 0.9695], "nice": false}, "type": "quantitative"}}}], "height": 280, "title": "Where the +0.0051 came from: representation, not tuning", "width": 520, "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json", "datasets": {"data-2221a737b704aac2449674f8e76fd622": [{"level": 0.963947, "label": "raw-feature baseline  0.963947"}, {"level": 0.96901, "label": "26-member stack  0.969010"}], "data-c27f92a0d57eef579862ec054afb9fba": [{"level": 0.963947, "label": "raw-feature baseline  0.963947"}], "data-4932c5344b3e052c596cbf0ce897318c": [{"level": 0.96901, "label": "26-member stack  0.969010"}], "data-bb5678e8c4a5d2c0ce78d819ad61cc69": [{"step": "max_bin 255 -> 2047", "start": 0.963947, "end": 0.966097, "delta": 0.00215}, {"step": "value-level encoding", "start": 0.966097, "end": 0.967317, "delta": 0.00122}, {"step": "generator structure", "start": 0.967317, "end": 0.968367, "delta": 0.00105}, {"step": "imputation as augmentation", "start": 0.968367, "end": 0.968677, "delta": 0.00031}, {"step": "hill-climb rank stack", "start": 0.968677, "end": 0.968917, "delta": 0.00024}, {"step": "unattributed residual", "start": 0.968917, "end": 0.96901, "delta": 9.300000000000974e-05}]}}, "measured-and-rejected": {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300, "stroke": null}, "axis": {"domain": false, "grid": true, "gridColor": "#e6e5e1", "gridWidth": 1, "labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "tickColor": "#e6e5e1", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11, "titleFontWeight": "normal"}, "legend": {"labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "symbolStrokeWidth": 0, "symbolType": "square", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11}, "text": {"font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"}, "title": {"anchor": "start", "color": "#0b0b0b", "dy": -6, "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "fontSize": 13, "fontWeight": 600}}, "layer": [{"data": {"name": "data-e14096e30131c75e01e7c86a4e023dad"}, "mark": {"type": "rect", "color": "#c8c7c2", "opacity": 0.3}, "encoding": {"x": {"axis": {"format": "+.5f", "title": "Change in OOF AUC, paired on identical folds", "values": [-0.00075, -0.0005, -0.00025, 0.0, 0.00025]}, "field": "lo", "scale": {"domain": [-0.00095, 0.0003], "nice": false}, "type": "quantitative"}, "x2": {"field": "hi"}}}, {"data": {"name": "data-8b3a17ce41fee0e9e7207dba2e51e98b"}, "mark": {"type": "rule", "color": "#52514e", "strokeWidth": 1}, "encoding": {"x": {"axis": {"format": "+.5f", "title": "Change in OOF AUC, paired on identical folds", "values": [-0.00075, -0.0005, -0.00025, 0.0, 0.00025]}, "field": "z", "scale": {"domain": [-0.00095, 0.0003], "nice": false}, "type": "quantitative"}}}, {"data": {"name": "data-bf816d49be80dbceb6d7a2ad77c84a49"}, "mark": {"type": "bar", "cornerRadiusEnd": 3, "height": 13}, "encoding": {"color": {"condition": {"test": "(datum.delta >= 0)", "value": "#2a78d6"}, "value": "#e34948"}, "tooltip": [{"field": "idea", "type": "nominal"}, {"field": "delta", "format": "+.5f", "type": "quantitative"}], "x": {"axis": {"format": "+.5f", "title": "Change in OOF AUC, paired on identical folds", "values": [-0.00075, -0.0005, -0.00025, 0.0, 0.00025]}, "field": "delta", "scale": {"domain": [-0.00095, 0.0003], "nice": false}, "type": "quantitative"}, "y": {"axis": {"labelFontSize": 11, "labelLimit": 300}, "field": "idea", "sort": ["lower learning rate 0.03 -> 0.015", "LGB + XGB blend on raw features", "neighbourhood-shrunk target encoding", "capacity re-tune, 127 leaves", "init_score from TE logit, top-2 cols", "appending original.csv rows", "DART boosting", "ordinal transfer from original.csv", "init_score from TE logit, all 9 cols", "LightGBM extra_trees", "LightGBM linear_tree"], "title": null, "type": "nominal"}}}], "height": {"step": 22}, "title": "Measured and rejected. Grey band = the +/-0.00014 resolution floor", "width": 430, "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json", "datasets": {"data-e14096e30131c75e01e7c86a4e023dad": [{"lo": -0.00014, "hi": 0.00014}], "data-8b3a17ce41fee0e9e7207dba2e51e98b": [{"z": 0.0}], "data-bf816d49be80dbceb6d7a2ad77c84a49": [{"idea": "lower learning rate 0.03 -> 0.015", "delta": 0.00019}, {"idea": "LGB + XGB blend on raw features", "delta": 0.00011}, {"idea": "neighbourhood-shrunk target encoding", "delta": 4e-05}, {"idea": "capacity re-tune, 127 leaves", "delta": 1e-05}, {"idea": "init_score from TE logit, top-2 cols", "delta": 1e-05}, {"idea": "appending original.csv rows", "delta": -4e-05}, {"idea": "DART boosting", "delta": -0.0002}, {"idea": "ordinal transfer from original.csv", "delta": -0.00024}, {"idea": "init_score from TE logit, all 9 cols", "delta": -0.00027}, {"idea": "LightGBM extra_trees", "delta": -0.00044}, {"idea": "LightGBM linear_tree", "delta": -0.00081}]}}, "stack-weight-by-diversity": {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300, "stroke": null}, "axis": {"domain": false, "grid": true, "gridColor": "#e6e5e1", "gridWidth": 1, "labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "tickColor": "#e6e5e1", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11, "titleFontWeight": "normal"}, "legend": {"labelColor": "#52514e", "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "labelFontSize": 11, "symbolStrokeWidth": 0, "symbolType": "square", "titleColor": "#52514e", "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "titleFontSize": 11}, "text": {"font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"}, "title": {"anchor": "start", "color": "#0b0b0b", "dy": -6, "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif", "fontSize": 13, "fontWeight": 600}}, "layer": [{"mark": {"type": "bar", "color": "#2a78d6", "cornerRadiusEnd": 4, "height": 18}, "encoding": {"tooltip": [{"field": "source", "type": "nominal"}, {"field": "weight", "format": ".3f", "type": "quantitative"}], "x": {"field": "weight", "scale": {"domain": [0, 0.16]}, "title": "Combined weight in the 26-member stack", "type": "quantitative"}, "y": {"axis": {"labelFontSize": 11, "labelLimit": 400}, "field": "source", "sort": ["Feature subsets \u2014 struct_imp, no_te", "Different model class \u2014 embedding NN", "Hyperparameter variants \u2014 linear_tree, extra_trees, DART, ExtraTrees"], "title": null, "type": "nominal"}}}, {"mark": {"type": "text", "align": "left", "color": "#52514e", "dx": 6, "fontSize": 11}, "encoding": {"text": {"field": "weight", "format": ".3f", "type": "quantitative"}, "x": {"field": "weight", "scale": {"domain": [0, 0.16]}, "title": "Combined weight in the 26-member stack", "type": "quantitative"}, "y": {"axis": {"labelFontSize": 11, "labelLimit": 400}, "field": "source", "sort": ["Feature subsets \u2014 struct_imp, no_te", "Different model class \u2014 embedding NN", "Hyperparameter variants \u2014 linear_tree, extra_trees, DART, ExtraTrees"], "title": null, "type": "nominal"}}}], "data": {"name": "data-c570d84d1c90a79dcc6c0f3c13aad7cb"}, "height": {"step": 46}, "title": "Diversity has to come from what the model sees, not how it fits", "width": 430, "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json", "datasets": {"data-c570d84d1c90a79dcc6c0f3c13aad7cb": [{"source": "Feature subsets \u2014 struct_imp, no_te", "weight": 0.133}, {"source": "Different model class \u2014 embedding NN", "weight": 0.1}, {"source": "Hyperparameter variants \u2014 linear_tree, extra_trees, DART, ExtraTrees", "weight": 0.0}]}}};
+const MOUNT = {"p-cv":"cv-lb-offset","p-gain":"gain-decomposition","p-rej":"measured-and-rejected","p-div":"stack-weight-by-diversity"};
+
+// The exported specs are stepped for the light chart surface. Dark mode re-steps each
+// slot to the palette's own dark column rather than inverting the light values.
+const DARK = {
+  "#2a78d6":"#3987e5", "#eb6834":"#d95926", "#e34948":"#e66767",
+  "#0b0b0b":"#e9eef5", "#52514e":"#93a0b1", "#e6e5e1":"#2b323d",
+  "#c8c7c2":"#4a5462", "#fcfcfb":"#161b23"
+};
+
+function restep(node, map){
+  if (Array.isArray(node)) return node.map(v => restep(v, map));
+  if (node && typeof node === "object"){
+    const out = {};
+    for (const k in node) out[k] = restep(node[k], map);
+    return out;
+  }
+  if (typeof node === "string" && map[node.toLowerCase()]) return map[node.toLowerCase()];
+  return node;
+}
+
+function isDark(){
+  const stamp = document.documentElement.getAttribute("data-theme");
+  if (stamp === "dark") return true;
+  if (stamp === "light") return false;
+  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function draw(){
+  const dark = isDark();
+  for (const id in MOUNT){
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const spec = dark ? restep(SPECS[MOUNT[id]], DARK) : SPECS[MOUNT[id]];
+    vegaEmbed(el, spec, {actions:false, renderer:"svg", background:"transparent"})
+      .catch(err => { el.textContent = "Chart failed to load."; console.error(err); });
+  }
+}
+
+if (window.vegaEmbed) draw();
+else window.addEventListener("load", draw);
+
+if (window.matchMedia){
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener ? mq.addEventListener("change", draw) : mq.addListener(draw);
+}
+new MutationObserver(draw).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+</script>
