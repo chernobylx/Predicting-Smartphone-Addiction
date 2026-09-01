@@ -560,5 +560,31 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## How those follow-ups resolved
+
+        Added after the competition closed, so the profiling pass can be read
+        against what actually happened. Every number here is from the README
+        ledger, and each was measured as a paired arm on identical folds.
+
+        | # | Follow-up | Outcome |
+        |---|---|---|
+        | 1 | Missingness mechanism | **Killed.** Missingness indicators and null counts have univariate AUC 0.5017 — MCAR and inert, exactly the "confirm" branch. |
+        | 2 | Baseline on the untouched 90% | **Confirmed.** OOF AUC 0.963947, public LB 0.96541. The screen-time family's separation did translate. |
+        | 3 | Interaction / ratio features | **Confirmed, but not as expected.** Generic ratios were worth little; the *generator constraint* `daily >= social + gaming + work`, which holds for 100.000% of complete rows, was worth +0.00105. |
+        | 4 | Original vs synthetic | **Killed, twice.** Appending `original.csv` rows scored −0.00004 (4/5 folds worse); an ordinal transfer feature from its 4-level label scored −0.00024 (5/5 folds worse), despite that model recovering the label at 0.9893 AUC. |
+
+        Follow-up 4 is the sharpest instance of this project's thesis: a model
+        that predicts the label almost perfectly on its own data made the
+        competition model *worse*. Standalone strength does not predict
+        incremental value.
+        """
+    )
+    return
+
+
 if __name__ == "__main__":
     app.run()
