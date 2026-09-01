@@ -1,0 +1,317 @@
+{
+ "config": {
+  "view": {
+   "continuousWidth": 300,
+   "continuousHeight": 300,
+   "stroke": null
+  },
+  "axis": {
+   "domain": false,
+   "grid": true,
+   "gridColor": "#e6e5e1",
+   "gridWidth": 1,
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "tickColor": "#e6e5e1",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11,
+   "titleFontWeight": "normal"
+  },
+  "legend": {
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "symbolStrokeWidth": 0,
+   "symbolType": "square",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11
+  },
+  "text": {
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"
+  },
+  "title": {
+   "anchor": "start",
+   "color": "#0b0b0b",
+   "dy": -6,
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "fontSize": 13,
+   "fontWeight": 600
+  }
+ },
+ "layer": [
+  {
+   "data": {
+    "name": "data-2221a737b704aac2449674f8e76fd622"
+   },
+   "mark": {
+    "type": "rule",
+    "color": "#c8c7c2",
+    "strokeWidth": 1
+   },
+   "encoding": {
+    "y": {
+     "field": "level",
+     "scale": {
+      "domain": [
+       0.9635,
+       0.9695
+      ],
+      "nice": false
+     },
+     "type": "quantitative"
+    }
+   }
+  },
+  {
+   "layer": [
+    {
+     "data": {
+      "name": "data-c27f92a0d57eef579862ec054afb9fba"
+     },
+     "mark": {
+      "type": "text",
+      "align": "right",
+      "baseline": "bottom",
+      "color": "#52514e",
+      "dy": -3,
+      "fontSize": 10
+     },
+     "encoding": {
+      "text": {
+       "field": "label",
+       "type": "nominal"
+      },
+      "x": {
+       "value": 515
+      },
+      "y": {
+       "field": "level",
+       "scale": {
+        "domain": [
+         0.9635,
+         0.9695
+        ],
+        "nice": false
+       },
+       "type": "quantitative"
+      }
+     }
+    },
+    {
+     "data": {
+      "name": "data-4932c5344b3e052c596cbf0ce897318c"
+     },
+     "mark": {
+      "type": "text",
+      "align": "left",
+      "baseline": "bottom",
+      "color": "#52514e",
+      "dy": -3,
+      "fontSize": 10
+     },
+     "encoding": {
+      "text": {
+       "field": "label",
+       "type": "nominal"
+      },
+      "x": {
+       "value": 3
+      },
+      "y": {
+       "field": "level",
+       "scale": {
+        "domain": [
+         0.9635,
+         0.9695
+        ],
+        "nice": false
+       },
+       "type": "quantitative"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "data": {
+    "name": "data-bb5678e8c4a5d2c0ce78d819ad61cc69"
+   },
+   "mark": {
+    "type": "bar",
+    "color": "#2a78d6",
+    "cornerRadius": 3,
+    "size": 30
+   },
+   "encoding": {
+    "tooltip": [
+     {
+      "field": "step",
+      "type": "nominal"
+     },
+     {
+      "field": "delta",
+      "format": "+.5f",
+      "type": "quantitative"
+     },
+     {
+      "field": "end",
+      "format": ".6f",
+      "type": "quantitative"
+     }
+    ],
+    "x": {
+     "axis": {
+      "labelAngle": -30,
+      "labelLimit": 150
+     },
+     "field": "step",
+     "sort": [
+      "max_bin 255 -> 2047",
+      "value-level encoding",
+      "generator structure",
+      "imputation as augmentation",
+      "hill-climb rank stack",
+      "unattributed residual"
+     ],
+     "title": null,
+     "type": "nominal"
+    },
+    "y": {
+     "axis": {
+      "format": ".4f"
+     },
+     "field": "start",
+     "scale": {
+      "domain": [
+       0.9635,
+       0.9695
+      ],
+      "nice": false
+     },
+     "title": "OOF AUC",
+     "type": "quantitative"
+    },
+    "y2": {
+     "field": "end"
+    }
+   }
+  },
+  {
+   "data": {
+    "name": "data-bb5678e8c4a5d2c0ce78d819ad61cc69"
+   },
+   "mark": {
+    "type": "text",
+    "align": "center",
+    "baseline": "bottom",
+    "color": "#52514e",
+    "dy": -5,
+    "fontSize": 10
+   },
+   "encoding": {
+    "text": {
+     "field": "delta",
+     "format": "+.5f",
+     "type": "quantitative"
+    },
+    "x": {
+     "axis": {
+      "labelAngle": -30,
+      "labelLimit": 150
+     },
+     "field": "step",
+     "sort": [
+      "max_bin 255 -> 2047",
+      "value-level encoding",
+      "generator structure",
+      "imputation as augmentation",
+      "hill-climb rank stack",
+      "unattributed residual"
+     ],
+     "title": null,
+     "type": "nominal"
+    },
+    "y": {
+     "field": "end",
+     "scale": {
+      "domain": [
+       0.9635,
+       0.9695
+      ],
+      "nice": false
+     },
+     "type": "quantitative"
+    }
+   }
+  }
+ ],
+ "height": 280,
+ "title": "Where the +0.0051 came from: representation, not tuning",
+ "width": 520,
+ "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json",
+ "datasets": {
+  "data-2221a737b704aac2449674f8e76fd622": [
+   {
+    "level": 0.963947,
+    "label": "raw-feature baseline  0.963947"
+   },
+   {
+    "level": 0.96901,
+    "label": "26-member stack  0.969010"
+   }
+  ],
+  "data-c27f92a0d57eef579862ec054afb9fba": [
+   {
+    "level": 0.963947,
+    "label": "raw-feature baseline  0.963947"
+   }
+  ],
+  "data-4932c5344b3e052c596cbf0ce897318c": [
+   {
+    "level": 0.96901,
+    "label": "26-member stack  0.969010"
+   }
+  ],
+  "data-bb5678e8c4a5d2c0ce78d819ad61cc69": [
+   {
+    "step": "max_bin 255 -> 2047",
+    "start": 0.963947,
+    "end": 0.966097,
+    "delta": 0.00215
+   },
+   {
+    "step": "value-level encoding",
+    "start": 0.966097,
+    "end": 0.967317,
+    "delta": 0.00122
+   },
+   {
+    "step": "generator structure",
+    "start": 0.967317,
+    "end": 0.968367,
+    "delta": 0.00105
+   },
+   {
+    "step": "imputation as augmentation",
+    "start": 0.968367,
+    "end": 0.968677,
+    "delta": 0.00031
+   },
+   {
+    "step": "hill-climb rank stack",
+    "start": 0.968677,
+    "end": 0.968917,
+    "delta": 0.00024
+   },
+   {
+    "step": "unattributed residual",
+    "start": 0.968917,
+    "end": 0.96901,
+    "delta": 9.300000000000974e-05
+   }
+  ]
+ }
+}

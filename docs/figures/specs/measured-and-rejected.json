@@ -1,0 +1,256 @@
+{
+ "config": {
+  "view": {
+   "continuousWidth": 300,
+   "continuousHeight": 300,
+   "stroke": null
+  },
+  "axis": {
+   "domain": false,
+   "grid": true,
+   "gridColor": "#e6e5e1",
+   "gridWidth": 1,
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "tickColor": "#e6e5e1",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11,
+   "titleFontWeight": "normal"
+  },
+  "legend": {
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "symbolStrokeWidth": 0,
+   "symbolType": "square",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11
+  },
+  "text": {
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"
+  },
+  "title": {
+   "anchor": "start",
+   "color": "#0b0b0b",
+   "dy": -6,
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "fontSize": 13,
+   "fontWeight": 600
+  }
+ },
+ "layer": [
+  {
+   "data": {
+    "name": "data-e14096e30131c75e01e7c86a4e023dad"
+   },
+   "mark": {
+    "type": "rect",
+    "color": "#c8c7c2",
+    "opacity": 0.3
+   },
+   "encoding": {
+    "x": {
+     "axis": {
+      "format": "+.5f",
+      "title": "Change in OOF AUC, paired on identical folds",
+      "values": [
+       -0.00075,
+       -0.0005,
+       -0.00025,
+       0.0,
+       0.00025
+      ]
+     },
+     "field": "lo",
+     "scale": {
+      "domain": [
+       -0.00095,
+       0.0003
+      ],
+      "nice": false
+     },
+     "type": "quantitative"
+    },
+    "x2": {
+     "field": "hi"
+    }
+   }
+  },
+  {
+   "data": {
+    "name": "data-8b3a17ce41fee0e9e7207dba2e51e98b"
+   },
+   "mark": {
+    "type": "rule",
+    "color": "#52514e",
+    "strokeWidth": 1
+   },
+   "encoding": {
+    "x": {
+     "axis": {
+      "format": "+.5f",
+      "title": "Change in OOF AUC, paired on identical folds",
+      "values": [
+       -0.00075,
+       -0.0005,
+       -0.00025,
+       0.0,
+       0.00025
+      ]
+     },
+     "field": "z",
+     "scale": {
+      "domain": [
+       -0.00095,
+       0.0003
+      ],
+      "nice": false
+     },
+     "type": "quantitative"
+    }
+   }
+  },
+  {
+   "data": {
+    "name": "data-bf816d49be80dbceb6d7a2ad77c84a49"
+   },
+   "mark": {
+    "type": "bar",
+    "cornerRadiusEnd": 3,
+    "height": 13
+   },
+   "encoding": {
+    "color": {
+     "condition": {
+      "test": "(datum.delta >= 0)",
+      "value": "#2a78d6"
+     },
+     "value": "#e34948"
+    },
+    "tooltip": [
+     {
+      "field": "idea",
+      "type": "nominal"
+     },
+     {
+      "field": "delta",
+      "format": "+.5f",
+      "type": "quantitative"
+     }
+    ],
+    "x": {
+     "axis": {
+      "format": "+.5f",
+      "title": "Change in OOF AUC, paired on identical folds",
+      "values": [
+       -0.00075,
+       -0.0005,
+       -0.00025,
+       0.0,
+       0.00025
+      ]
+     },
+     "field": "delta",
+     "scale": {
+      "domain": [
+       -0.00095,
+       0.0003
+      ],
+      "nice": false
+     },
+     "type": "quantitative"
+    },
+    "y": {
+     "axis": {
+      "labelFontSize": 11,
+      "labelLimit": 300
+     },
+     "field": "idea",
+     "sort": [
+      "lower learning rate 0.03 -> 0.015",
+      "LGB + XGB blend on raw features",
+      "neighbourhood-shrunk target encoding",
+      "capacity re-tune, 127 leaves",
+      "init_score from TE logit, top-2 cols",
+      "appending original.csv rows",
+      "DART boosting",
+      "ordinal transfer from original.csv",
+      "init_score from TE logit, all 9 cols",
+      "LightGBM extra_trees",
+      "LightGBM linear_tree"
+     ],
+     "title": null,
+     "type": "nominal"
+    }
+   }
+  }
+ ],
+ "height": {
+  "step": 22
+ },
+ "title": "Measured and rejected. Grey band = the +/-0.00014 resolution floor",
+ "width": 430,
+ "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json",
+ "datasets": {
+  "data-e14096e30131c75e01e7c86a4e023dad": [
+   {
+    "lo": -0.00014,
+    "hi": 0.00014
+   }
+  ],
+  "data-8b3a17ce41fee0e9e7207dba2e51e98b": [
+   {
+    "z": 0.0
+   }
+  ],
+  "data-bf816d49be80dbceb6d7a2ad77c84a49": [
+   {
+    "idea": "lower learning rate 0.03 -> 0.015",
+    "delta": 0.00019
+   },
+   {
+    "idea": "LGB + XGB blend on raw features",
+    "delta": 0.00011
+   },
+   {
+    "idea": "neighbourhood-shrunk target encoding",
+    "delta": 4e-05
+   },
+   {
+    "idea": "capacity re-tune, 127 leaves",
+    "delta": 1e-05
+   },
+   {
+    "idea": "init_score from TE logit, top-2 cols",
+    "delta": 1e-05
+   },
+   {
+    "idea": "appending original.csv rows",
+    "delta": -4e-05
+   },
+   {
+    "idea": "DART boosting",
+    "delta": -0.0002
+   },
+   {
+    "idea": "ordinal transfer from original.csv",
+    "delta": -0.00024
+   },
+   {
+    "idea": "init_score from TE logit, all 9 cols",
+    "delta": -0.00027
+   },
+   {
+    "idea": "LightGBM extra_trees",
+    "delta": -0.00044
+   },
+   {
+    "idea": "LightGBM linear_tree",
+    "delta": -0.00081
+   }
+  ]
+ }
+}
