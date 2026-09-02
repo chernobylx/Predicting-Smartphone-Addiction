@@ -3,7 +3,9 @@
 Machine learning entry for the Kaggle [Playground Series — Season 6, Episode 8](https://www.kaggle.com/competitions/playground-series-s6e8)
 competition: predicting the likelihood of smartphone addiction from behavioural and usage data.
 
-**Public LB 0.97013 — rank 728 / 3353, top 21.7%.**
+**Public LB 0.97013 — rank 728 / 3353 (top 21.7%) on the public leaderboard.**
+Private-leaderboard rank not recorded; the competition shook up on private, so the
+public figure should not be read as final. See [How this compares](#how-this-compares).
 
 > **The finding this project is actually about:** standalone strength does not predict
 > incremental value. A feature that improved its own univariate AUC by +0.0025 delivered
@@ -36,7 +38,7 @@ motivated.
 | 7-member stack | 0.968630 | 0.96982 | 821 |
 | 14-member stack (+ XGBoost) | 0.968738 | 0.96994 | 777 |
 | 18-member stack (+ ES-reclaim, NN) | 0.968955 | 0.97008 | 740 |
-| **26-member stack (+ feature subsets)** | **0.969010** | **0.97013** | **728 (top 21.7%)** |
+| **26-member stack (+ feature subsets)** | **0.969010** | **0.97013** | **728 public (top 21.7%)** |
 
 ![CV against the public leaderboard, and the offset between them](docs/figures/fig-cv-lb-offset.png)
 
@@ -129,6 +131,102 @@ NaN is strictly more expressive than a point estimate. Missingness is handled by
 its own encoding level, computing the budget residual under both NaN conventions, and
 deriving hard bounds from the generator constraint where the algebra pins a missing value
 down. Imputed columns are added only as extra features, never as replacements.
+
+## How this compares
+
+Written after the competition closed, against
+[Chris Deotte's 1st-place write-up](https://www.kaggle.com/competitions/playground-series-s6e8/writeups/1st-place-distributed-intelligence-nvidia-infe)
+and [Keanan's 7th-place write-up](https://www.kaggle.com/competitions/playground-series-s6e8/writeups/7th-place-many-models-one-simple-stack).
+Their numbers are quoted from those pages; ours are unchanged from the ledger above.
+
+| Entry | CV / OOF | Public LB | Private LB |
+|---|---|---|---|
+| Deotte — 456-model stack + cuML logistic regression | 0.97098 | 0.97207 | 0.97176 |
+| Deotte — best single model, a RealMLP | 0.97070 | 0.97174 | 0.97145 |
+| Keanan — public hedge (Gaussian copula) | — | 0.97139 | 0.97112 |
+| Keanan — strict-OOF primary, 556 prediction streams | 0.970879 | 0.97127 | 0.97095 |
+| Deotte — single XGBoost | 0.97020 | 0.97030 | — |
+| **Keanan — best single XGBoost, level 1** | **0.969080** | — | — |
+| **This project — 26-member stack** | **0.969010** | **0.97013** | not recorded |
+
+**The headline, stated plainly: this entire 26-member stack scores just below one
+competitor's best single XGBoost on comparable out-of-fold data** — 0.969010 against
+0.969080. The gap to 1st place is not a gap in discipline; it is a gap in volume.
+
+### What this project got right
+
+**Exact-value target encoding, confirmed independently.** Keanan: *"Some continuous-looking
+values repeated many times and had surprisingly stable target rates. Exact-value target
+encoding was therefore extremely strong even when the raw feature itself was weak."* That is
+the `notifications_per_day` result above — raw univariate AUC 0.5079, target-encoded 0.7486
+— arrived at separately by a top-ten finisher. He measured moving from four to nine
+target-encoded columns at **+0.00191 on XGBoost**; all nine were encoded here.
+
+**The validation protocol.** Keanan froze one ten-fold split, required a complete OOF plus a
+matching test prediction plus provenance for every stream he admitted, and learned final
+blend weights on nine folds while evaluating on the tenth. That is structurally the protocol
+used here — weights on four folds, scored on the fifth — down to naming the same trap.
+
+**The score is better than the rank suggests.** A competitor measured that a cross-fitted
+logistic stack over roughly 155 *public* single-model OOFs tops out around 0.9701, and
+reproduced the public exact-value RealMLP recipe at CV 0.9690. This project reached, working
+alone, what the entire shared public pool reached when stacked together.
+
+### What this project got wrong
+
+**Missingness.** The ledger above records missingness indicators at univariate AUC 0.5017,
+concludes MCAR, and closes the thread. Deotte: *"One new large source of signal and feature
+engineering was all the missing values"*, and the agents *"found many features related to
+missingness which gave improvements to CV and LB."*
+
+These are reconciled precisely by a commenter on that write-up: the *pattern* of which cells
+are absent says nothing about the label — the 0.5017 is right — but **what is missing is
+often recoverable by arithmetic from what is not**. The generator constraint makes some
+missing drivers exactly recoverable. That is the same mechanism as the
+missingness-conditional bounds in [`features.py`](src/smartphone_addiction/features.py) — so
+the right conclusion was never "missingness is inert", it was "missingness *indicators* are
+inert, and missing *values* are a feature source". The thread was closed one step too early.
+
+**The generator constraint was not an original find.** The same commenter credits
+**ryota517** with publishing `daily >= social + gaming + work` first. It was public.
+
+**And its value is contested.** Keanan, having already target-encoded nine columns, reports
+that *"many sensible domain ratios, reconstructed totals and kNN features did almost nothing
+after that."* Measured here it was worth +0.00105. Both can be true — the structural block
+went into a matrix that was built differently, and order of addition decides what is left to
+find — but this is an unresolved disagreement, not a settled win.
+
+**`max_bin` goes unmentioned by both.** The single largest gain measured here, +0.00215, is
+absent from both write-ups. That is not vindication and not refutation; it is an open
+question about a lever nobody else chose to discuss.
+
+### What the top of the board did that this project did not
+
+| | |
+|---|---|
+| Pair and feature-on-feature statistics | Keanan lists these among his useful families; none were built here |
+| Model-family breadth | Keanan measured 21 level-1 families; this project used LightGBM, one NN and XGBoost |
+| Keeping deliberately weak members | 50 individually weak public models added +0.000060 to his blend, against +0.000013 for a random control of the same size |
+| Negative stack weights | Subtracting 25% of a public-only stack and 10% of a Rank-Gauss stack moved his OOF 0.970820 → 0.970849 |
+| Pooling public OOFs | 350 of his 556 streams came from other competitors; this project used none |
+| Sheer volume | 456 models for 1st, 556 streams for 7th, against 26 here |
+
+The first four are cheap and were simply not tried. The last two are strategic choices rather
+than oversights: pooling public predictions is a different game from building an independent
+solution, and volume is what an agent swarm buys.
+
+### What I would do differently
+
+1. Re-open missingness as **value recovery**, not indicator features — the constraint already
+   pins some missing values exactly, and that block was never extended past bounds.
+2. Add pair and feature-on-feature statistics, the one cheap feature family on the winners'
+   list with no counterpart here.
+3. Widen the model zoo before widening the stack. The ledger already shows that hyperparameter
+   variants earn zero weight while different *representations* earn most of it, and a
+   different architecture is a different representation.
+4. Allow negative weights in the hill-climb. It currently cannot subtract a member, so an
+   over-represented error direction has no way out.
+5. Record the private-leaderboard rank, and report it beside the public one.
 
 ## Setup
 

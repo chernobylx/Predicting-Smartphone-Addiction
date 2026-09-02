@@ -128,8 +128,8 @@ code{font-family:"IBM Plex Mono",monospace; font-size:.88em; background:var(--su
   data — including, mostly, the things that turned out to be worth nothing.</p>
   <div class="readout">
     <div><span class="k">Public LB</span><span class="v">0.97013</span></div>
-    <div><span class="k">Rank</span><span class="v">728 / 3353</span></div>
-    <div><span class="k">Percentile</span><span class="v">Top 21.7%</span></div>
+    <div><span class="k">Public rank</span><span class="v">728 / 3353</span></div>
+    <div><span class="k">Private rank</span><span class="v">not recorded</span></div>
     <div><span class="k">Metric</span><span class="v">ROC-AUC</span></div>
   </div>
 </header>
@@ -329,14 +329,84 @@ something it currently cannot.</em></p>
     are absent because they were refuted, not because they were overlooked. Everything else
     on this page — baseline, pipeline, gain decomposition, leakage tests — reproduces
     exactly.</p>
+  </div>
+</section>
+
+<section>
+  <div class="section-head col">
+    <span class="eyebrow">08 &middot; The comparison</span>
+    <h2>Against the people who beat it</h2>
+  </div>
+  <div class="col">
+    <p>Written after the competition closed on 31 August 2026, against the published
+    1st- and 7th-place write-ups. Their numbers are quoted; ours are unchanged.</p>
+  </div>
+  <div class="scroll" style="margin-top:20px">
+    <table>
+      <thead><tr><th>Entry</th><th class="num">CV / OOF</th><th class="num">Public LB</th><th class="num">Private LB</th></tr></thead>
+      <tbody>
+        <tr><td>1st — 456-model stack + cuML logistic regression</td><td class="num">0.97098</td><td class="num">0.97207</td><td class="num">0.97176</td></tr>
+        <tr><td>1st — best <em>single</em> model, a RealMLP</td><td class="num">0.97070</td><td class="num">0.97174</td><td class="num">0.97145</td></tr>
+        <tr><td>7th — public hedge (Gaussian copula)</td><td class="num">&mdash;</td><td class="num">0.97139</td><td class="num">0.97112</td></tr>
+        <tr><td>7th — strict-OOF primary, 556 streams</td><td class="num">0.970879</td><td class="num">0.97127</td><td class="num">0.97095</td></tr>
+        <tr><td>1st — single XGBoost</td><td class="num">0.97020</td><td class="num">0.97030</td><td class="num">&mdash;</td></tr>
+        <tr><td>7th — best single XGBoost, level 1</td><td class="num">0.969080</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+        <tr class="best"><td>This project — 26-member stack</td><td class="num">0.969010</td><td class="num">0.97013</td><td class="num">not recorded</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col stack g16" style="margin-top:24px">
+    <p>Stated plainly: <strong>this entire 26-member stack scores just below one competitor's
+    best single XGBoost</strong> on comparable out-of-fold data — 0.969010 against 0.969080.
+    The distance to first place is not a distance in discipline. It is a distance in volume:
+    456 models for 1st, 556 prediction streams for 7th, 26 here.</p>
+
+    <h3>Confirmed independently</h3>
+    <p>The 7th-place finisher: <em>"Some continuous-looking values repeated many times and had
+    surprisingly stable target rates. Exact-value target encoding was therefore extremely
+    strong even when the raw feature itself was weak."</em> That is the
+    <code>notifications_per_day</code> result on this page — raw 0.5079, encoded 0.7486 —
+    reached separately. He measured four&rarr;nine target-encoded columns at
+    <span class="d up">+0.00191</span> on XGBoost; all nine were encoded here. His validation
+    protocol was the same shape as this one, too: one frozen split, blend weights fitted on
+    nine folds and evaluated on the tenth.</p>
+
     <div class="note open">
-      <h3>Still open</h3>
-      <p>A comparison against the competition's 1st-place solution is pending publication of
-      the winner's write-up. The axes worth comparing are already fixed by this ledger: did
-      their gain come from representation or from scale; did they find the generator
-      constraint; did anyone else raise <code>max_bin</code> past 255; and where did their
-      ensemble diversity come from.</p>
+      <h3>The standing correction: missingness</h3>
+      <p>This page records missingness indicators at univariate AUC 0.5017, concludes MCAR,
+      and closes the thread. The competition winner reports the opposite — missing values
+      were <em>"one new large source of signal"</em>, and his agents <em>"found many features
+      related to missingness which gave improvements to CV and LB."</em></p>
+      <p>Both are right, and a commenter on that write-up pins the seam exactly: the
+      <em>pattern</em> of which cells are absent says nothing about the label, but
+      <strong>what is missing is often recoverable by arithmetic from what is not</strong>.
+      The generator constraint pins some missing drivers exactly — which is the mechanism
+      behind the missingness-conditional bounds already in this pipeline. So the correct
+      conclusion was never "missingness is inert". It was "missingness <em>indicators</em>
+      are inert, and missing <em>values</em> are a feature source." The thread was closed one
+      step too early, and that is the largest single gap the comparison found.</p>
     </div>
+
+    <h3>Two more corrections</h3>
+    <p>The generator constraint was <strong>not an original find</strong> — the same commenter
+    credits another competitor with publishing it first. And its value is genuinely contested:
+    the 7th-place finisher, having already target-encoded nine columns, reports that
+    <em>"many sensible domain ratios, reconstructed totals and kNN features did almost nothing
+    after that."</em> Measured here it was worth <span class="d up">+0.00105</span>. Order of
+    addition decides what is left to find, so both can hold — but it is an open disagreement,
+    not a settled win. Separately, <code>max_bin</code> — the largest gain on this page — goes
+    unmentioned by both finishers, which is neither vindication nor refutation.</p>
+
+    <h3>What the top of the board did that this did not</h3>
+    <p>Pair and feature-on-feature statistics. Twenty-one model families measured at level 1
+    against three here. Deliberately retaining weak members — fifty individually weak public
+    models added <span class="d nil">+0.000060</span> to the 7th-place blend against
+    <span class="d nil">+0.000013</span> for a random control. Negative stack weights, which
+    this hill-climb cannot express at all: subtracting 25% of one stack moved his OOF from
+    0.970820 to 0.970849. And pooling public OOFs — 350 of his 556 streams came from other
+    competitors, and none here.</p>
+    <p>The first four are cheap and were simply not tried. The last is a different game
+    altogether.</p>
   </div>
 </section>
 
