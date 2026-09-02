@@ -59,6 +59,10 @@ check     = { depends-on = ["lint", "typecheck", "test"] }
 download  = "kaggle competitions download -c playground-series-s6e8 -p data/raw"
 extract   = "python -m zipfile -e data/raw/playground-series-s6e8.zip data/raw/"
 data      = { depends-on = ["download", "extract"] }
+# Figures are drawn from the ledger constants in figures.py, so this needs no data.
+figures   = "python -m smartphone_addiction.figures"
+# The member vectors stack.py consumes. Expect hours on the full 691k rows.
+members   = "python -m smartphone_addiction.members"
 
 [environments]
 default = { features = ["dev"], solve-group = "default" }

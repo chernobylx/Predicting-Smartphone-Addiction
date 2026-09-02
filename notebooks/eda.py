@@ -49,6 +49,25 @@ def _():
     )
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        # Exploratory analysis — Predicting Smartphone Addiction
+
+        This is the working notebook, kept as a record of what was actually tried.
+        The conclusions that survived measurement are in the README's ledger; several
+        threads below were explored and found inert, and they are left in deliberately.
+
+        ## 1. Schema
+
+        Categoricals are declared up front rather than inferred. `stress_level` is an
+        `Enum`, not a `Categorical`: it is ordered, and the order carries meaning.
+        """
+    )
+    return
+
+
 @app.cell
 def _(pl):
     gender = pl.Categorical('gender')
@@ -68,11 +87,26 @@ def _(pl):
     return (schema_override,)
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 2. Load
+
+        Three frames: the competition `train` and `test`, plus `original.csv`, the
+        real-world dataset the competition's generator was fitted to. The original is
+        not part of `pixi run data` — it is a separate download.
+        """
+    )
+    return
+
+
 @app.cell
-def _(TEST_CSV, TRAIN_CSV, cs, pl, schema_override):
+def _(DATA_DIR, TEST_CSV, TRAIN_CSV, cs, pl, schema_override):
     train = pl.read_csv(TRAIN_CSV, schema_overrides=schema_override)
     test = pl.read_csv(TEST_CSV, schema_overrides = schema_override)
-    og = pl.read_csv(r'data\raw\original.csv', schema_overrides={
+    # Was a literal r'data\raw\original.csv', which only resolves on Windows.
+    og = pl.read_csv(DATA_DIR / 'raw' / 'original.csv', schema_overrides={
         'stress_level': pl.Enum(['Low', 'Medium', 'High']),
         'gender': pl.Categorical('gender'),
         'academic_work_impact': pl.Categorical('impact'),
@@ -98,6 +132,21 @@ def _(train):
 @app.cell
 def _(test):
     test
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 3. A working sample
+
+        691,369 rows is more than exploration needs. Everything below runs on a
+        stratified 10% sample so that a question costs seconds rather than minutes;
+        anything that looked real here was re-measured on the full data before it
+        reached the ledger.
+        """
+    )
     return
 
 
@@ -140,6 +189,22 @@ def _(eda, preds, target):
 @app.cell
 def _(eda):
     eda.shape
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 4. How much of what I see is sampling noise?
+
+        Every feature is 4–20% null, and the first question about a null rate that
+        differs between classes is whether it differs by more than resampling would
+        produce anyway. So: bootstrap the whole frame, cache the replicates to
+        parquet, and read confidence intervals off the distribution instead of
+        eyeballing a single number.
+        """
+    )
     return
 
 
@@ -323,6 +388,22 @@ def _(pl, results):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 6. Imputation, and why the model ends up not using it
+
+        `miceforest` builds a proper multivariate imputation here. It is worth doing
+        once to see the structure — but note where this lands in the ledger:
+        imputed columns helped only as *additional* features (+0.00031) and hurt as
+        replacements. LightGBM's learned per-split default direction for NaN is more
+        expressive than any point estimate.
+        """
+    )
+    return
+
+
 @app.cell
 def _(pl, sklearn):
     def get_df(trnsfrmr:sklearn.base.TransformerMixin, df:pl.DataFrame):
@@ -445,9 +526,38 @@ def _(B, cs, pl, preds, target):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 7. Pairwise structure
+
+        The pair plot is where the generator constraint first shows up as a hard edge
+        rather than a cloud: `daily >= social + gaming + work`, which later turned
+        into the +0.00105 structural feature block.
+        """
+    )
+    return
+
+
 @app.cell
 def _(eda, sns):
     sns.pairplot(eda.sample(500).to_pandas())
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 8. Manifold explorer
+
+        An interactive rig rather than a fixed figure: pick an embedding, the number
+        of dimensions, the sample fraction and the neighbourhood size, and look.
+        Nothing from this section reached the model — it is here because ruling out
+        a low-dimensional manifold is worth the twenty minutes it costs.
+        """
+    )
     return
 
 
@@ -552,6 +662,21 @@ def _(X, dims, mani, min_d, mo, neighbors, pl, y):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 9. Linear probes on the embedding
+
+        A logistic regression on the embedded space, then PCA and NMF, as a check on
+        whether any linear view separates the classes. It does not; the signal is in
+        exact values and hard steps, which is what the value-level encoding
+        (+0.00122) eventually exploited.
+        """
+    )
+    return
+
+
 @app.cell
 def _(LgRCV, SEED, StandardScaler, eda_2, np, target, tts):
     _ss = StandardScaler()
@@ -581,6 +706,19 @@ def _(NMF, eda_2, mo, pl, target):
     _df = NMF(n_components=4).fit_transform(MinMaxScaler().fit_transform(eda_2.drop(target)))
     _df = pl.concat([pl.DataFrame(_df), eda_2.select(target)], how='horizontal')
     mo.ui.data_explorer(_df)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ## 10. An AutoML sanity check
+
+        FLAML on a 16-second budget, purely to confirm that a competent automated
+        search lands near the hand-built baseline rather than far above it. It does.
+        """
+    )
     return
 
 

@@ -1,6 +1,19 @@
 # Predicting Smartphone Addiction
 
-Machine learning entry for the Kaggle [Playground Series — Season 6, Episode 8](https://www.kaggle.com/competitions/playground-series-s6e8) competition: predicting the likelihood of smartphone addiction from behavioral and usage data.
+Machine learning entry for the Kaggle [Playground Series — Season 6, Episode 8](https://www.kaggle.com/competitions/playground-series-s6e8)
+competition: predicting the likelihood of smartphone addiction from behavioural and usage data.
+
+**Public LB 0.97013 — rank 728 / 3353 (top 21.7%) on the public leaderboard.**
+Private-leaderboard rank not recorded; the competition shook up on private, so the
+public figure should not be read as final. See [How this compares](#how-this-compares).
+
+> **The finding this project is actually about:** standalone strength does not predict
+> incremental value. A feature that improved its own univariate AUC by +0.0025 delivered
+> +0.00004 in the model. A transfer model that recovers the label at 0.9893 AUC *hurt*
+> when its output was added. The most decorrelated ensemble member of all earned exactly
+> zero weight. The useful question is never "does this carry signal" but **"does this let
+> the model ask something it currently cannot"** — and answering it requires a ledger of
+> paired measurements, which is most of what is in this repository.
 
 ## The problem
 
@@ -12,8 +25,9 @@ Machine learning entry for the Kaggle [Playground Series — Season 6, Episode 8
 | **Class balance** | 70.9% positive |
 | **Missingness** | Every feature 4–20% null; 61.1% of rows have at least one null |
 
-Because the metric is AUC, only the *ranking* of predictions matters: probability calibration and
-decision-threshold tuning are irrelevant to the score, and rank-based ensembling is well motivated.
+Because the metric is AUC, only the *ranking* of predictions matters: probability calibration
+and decision-threshold tuning are irrelevant to the score, and rank-based ensembling is well
+motivated.
 
 ## Results
 
@@ -21,13 +35,24 @@ decision-threshold tuning are irrelevant to the score, and rank-based ensembling
 |---|---|---|---|
 | [`baseline.py`](src/smartphone_addiction/baseline.py) — raw features, no imputation | 0.963947 | 0.96541 | 1761 / 3353 |
 | [`pipeline.py`](src/smartphone_addiction/pipeline.py) — representation pipeline | 0.968069 | 0.96947 | 904 |
-| 7-member hill-climb rank stack | 0.968630 | 0.96982 | 821 |
-| **14-member stack (incl. XGBoost)** | **0.968738** | **0.96994** | **777 (top 23.2%)** |
+| 7-member stack | 0.968630 | 0.96982 | 821 |
+| 14-member stack (+ XGBoost) | 0.968738 | 0.96994 | 777 |
+| 18-member stack (+ ES-reclaim, NN) | 0.968955 | 0.97008 | 740 |
+| **26-member stack (+ feature subsets)** | **0.969010** | **0.97013** | **728 public (top 21.7%)** |
 
-The CV→LB offset is stable at **+0.0012 ± 0.0001** across every submission, so CV is a
-trustworthy selection instrument and leaderboard probing was never needed.
+![CV against the public leaderboard, and the offset between them](docs/figures/fig-cv-lb-offset.png)
+
+CV never disagreed with the leaderboard about the *direction* of a change, so CV was a
+trustworthy selection instrument and leaderboard probing was never needed. The offset is
+**+0.00125 mean, sd 0.00015, range +0.00112 … +0.00146**, and it is not a constant: it
+falls monotonically as the stack grows, which is what you would expect from an ensemble
+whose extra members buy less on the public split than they do in-fold. The check that
+matters is that structural changes moved both together — **CV +0.00412 produced
+LB +0.00406**. A leaking encoder would have moved CV without moving the leaderboard.
 
 ### What produced the gain: representation, not tuning
+
+![Waterfall of the gain from baseline to the final stack](docs/figures/fig-gain-decomposition.png)
 
 Each measured as a paired arm on identical folds.
 
@@ -36,11 +61,12 @@ Each measured as a paired arm on identical folds.
 | `max_bin` 255 → 2047 | +0.00215 | Six of nine numeric columns have more distinct values than LightGBM's default 255 bins (`weekend_screen_time` 1460, `daily_screen_time_hours` 1398). The label rule has hard steps at exact 2-decimal values; at 255 bins the bucket straddling `daily = 8.00` holds ~2,300 rows the model cannot separate. |
 | Value-level encoding | +0.00122 | `notifications_per_day` has raw univariate AUC 0.5079 but **0.7486** target-encoded. Adjacent integer values differ in target rate by 0.22 against a sampling sd of 0.008 — these columns are lookup keys, not quantities, and a tree needs two splits per value to express that. |
 | Generator structure | +0.00105 | `daily ≥ social + gaming + work` holds for **100.000%** of complete rows, so the residual is a real hidden quantity and, where a term is missing, the constraint *bounds* it. A four-term linear combination is the one thing axis-aligned trees provably cannot construct. |
-| XGBoost on the same matrix | +0.00043 | Best single model. The same implementation edge appeared on raw features (0.964158 vs 0.963643), so it replicates across feature sets. |
 | Imputation as augmentation | +0.00031 | Imputed columns **alongside** the NaN-bearing originals. Replacing them instead is measured *negative* elsewhere: a learned per-split default direction beats a point estimate. |
 | Hill-climb rank stack | +0.00024 | Greedy selection with replacement, weights fitted on 4 folds and scored on the 5th. |
 
 ### Measured and rejected
+
+![Signed effect of every rejected idea against the resolution floor](docs/figures/fig-measured-and-rejected.png)
 
 Every row is a paired same-fold comparison. The list is the point: in a saturated model,
 most plausible ideas are worth nothing, and knowing which is what the ledger buys.
@@ -61,12 +87,29 @@ most plausible ideas are worth nothing, and knowing which is what the ledger buy
 | LightGBM + XGBoost blend on raw features | +0.00011 (rank correlation 0.99542) |
 | Missingness indicators / null counts | univariate AUC 0.5017 — MCAR, inert |
 
-**The recurring lesson: standalone strength does not predict incremental value.**
 Neighbourhood TE improved its own feature by +0.0025 measured standalone and delivered
 +0.00004 in the model. A multiclass model on `original.csv` recovers the label at 0.9893
 AUC and *hurts* when transferred. ExtraTrees was the most decorrelated member and earned
-zero weight. The useful question is never "does this carry signal" but "does this let the
-model ask something it currently cannot".
+zero weight.
+
+### Stacking: what actually decorrelates
+
+![Stack weight by diversity source](docs/figures/fig-stack-weight-by-diversity.png)
+
+[`stack.py`](src/smartphone_addiction/stack.py) runs greedy hill-climbing with replacement
+over 29 candidate members, with weights fitted on 4 folds and scored on the held-out 5th —
+fitting weights on the OOF you then report is the ensembling trap, and it inflates by more
+than the entire gain being measured.
+
+Diversity has to come from *what the model sees*, not *how it fits*. `linear_tree` was only
+−0.0008 behind with the second-lowest correlation of any tree and still earned nothing,
+while `struct_imp` — denied our single largest feature win — took the fifth-largest weight.
+
+Two further measured results on ensembling. Seed-averaging the NN raised its solo AUC by
++0.0044 but raised its correlation from 0.96 to 0.978, so the stack gained only +0.000019:
+averaging removed exactly the idiosyncratic variance that made it useful. And entering the
+three seeds as *separate* members instead earned zero, because their average was already in
+the pool and strictly dominates them.
 
 ### Leakage discipline
 
@@ -77,15 +120,113 @@ stopping runs on a per-fold inner slice, never on the rows being scored. Stack w
 fitted on 4 folds and scored on the 5th, because fitting weights on the OOF you then report
 is the classic ensembling trap.
 
-The check that matters is empirical rather than architectural: **CV +0.00412 produced
-LB +0.00406**, with the offset unchanged across a structural change. A leaking encoder
-would have moved CV without moving the leaderboard.
+Two checks hold that claim up. Empirically, **CV +0.00412 produced LB +0.00406** — a
+leaking encoder moves CV without moving the leaderboard. And
+[`tests/test_members.py`](tests/test_members.py) runs the whole target-encoding path under a
+**shuffled label**, where it must score chance; an encoder that lets a row see its own label
+cannot pass that test.
 
 **Imputation strategy: none by default.** LightGBM's learned per-split default direction for
 NaN is strictly more expressive than a point estimate. Missingness is handled by giving NaN
 its own encoding level, computing the budget residual under both NaN conventions, and
 deriving hard bounds from the generator constraint where the algebra pins a missing value
 down. Imputed columns are added only as extra features, never as replacements.
+
+## How this compares
+
+Written after the competition closed, against
+[Chris Deotte's 1st-place write-up](https://www.kaggle.com/competitions/playground-series-s6e8/writeups/1st-place-distributed-intelligence-nvidia-infe)
+and [Keanan's 7th-place write-up](https://www.kaggle.com/competitions/playground-series-s6e8/writeups/7th-place-many-models-one-simple-stack).
+Their numbers are quoted from those pages; ours are unchanged from the ledger above.
+
+| Entry | CV / OOF | Public LB | Private LB |
+|---|---|---|---|
+| Deotte — 456-model stack + cuML logistic regression | 0.97098 | 0.97207 | 0.97176 |
+| Deotte — best single model, a RealMLP | 0.97070 | 0.97174 | 0.97145 |
+| Keanan — public hedge (Gaussian copula) | — | 0.97139 | 0.97112 |
+| Keanan — strict-OOF primary, 556 prediction streams | 0.970879 | 0.97127 | 0.97095 |
+| Deotte — single XGBoost | 0.97020 | 0.97030 | — |
+| **Keanan — best single XGBoost, level 1** | **0.969080** | — | — |
+| **This project — 26-member stack** | **0.969010** | **0.97013** | not recorded |
+
+**The headline, stated plainly: this entire 26-member stack scores just below one
+competitor's best single XGBoost on comparable out-of-fold data** — 0.969010 against
+0.969080. The gap to 1st place is not a gap in discipline; it is a gap in volume.
+
+### What this project got right
+
+**Exact-value target encoding, confirmed independently.** Keanan: *"Some continuous-looking
+values repeated many times and had surprisingly stable target rates. Exact-value target
+encoding was therefore extremely strong even when the raw feature itself was weak."* That is
+the `notifications_per_day` result above — raw univariate AUC 0.5079, target-encoded 0.7486
+— arrived at separately by a top-ten finisher. He measured moving from four to nine
+target-encoded columns at **+0.00191 on XGBoost**; all nine were encoded here.
+
+**The validation protocol.** Keanan froze one ten-fold split, required a complete OOF plus a
+matching test prediction plus provenance for every stream he admitted, and learned final
+blend weights on nine folds while evaluating on the tenth. That is structurally the protocol
+used here — weights on four folds, scored on the fifth — down to naming the same trap.
+
+**The score is better than the rank suggests.** A competitor measured that a cross-fitted
+logistic stack over roughly 155 *public* single-model OOFs tops out around 0.9701, and
+reproduced the public exact-value RealMLP recipe at CV 0.9690. This project reached, working
+alone, what the entire shared public pool reached when stacked together.
+
+### What this project got wrong
+
+**Missingness.** The ledger above records missingness indicators at univariate AUC 0.5017,
+concludes MCAR, and closes the thread. Deotte: *"One new large source of signal and feature
+engineering was all the missing values"*, and the agents *"found many features related to
+missingness which gave improvements to CV and LB."*
+
+These are reconciled precisely by a commenter on that write-up: the *pattern* of which cells
+are absent says nothing about the label — the 0.5017 is right — but **what is missing is
+often recoverable by arithmetic from what is not**. The generator constraint makes some
+missing drivers exactly recoverable. That is the same mechanism as the
+missingness-conditional bounds in [`features.py`](src/smartphone_addiction/features.py) — so
+the right conclusion was never "missingness is inert", it was "missingness *indicators* are
+inert, and missing *values* are a feature source". The thread was closed one step too early.
+
+**The generator constraint was not an original find.** The same commenter credits
+**ryota517** with publishing `daily >= social + gaming + work` first. It was public.
+
+**And its value is contested.** Keanan, having already target-encoded nine columns, reports
+that *"many sensible domain ratios, reconstructed totals and kNN features did almost nothing
+after that."* Measured here it was worth +0.00105. Both can be true — the structural block
+went into a matrix that was built differently, and order of addition decides what is left to
+find — but this is an unresolved disagreement, not a settled win.
+
+**`max_bin` goes unmentioned by both.** The single largest gain measured here, +0.00215, is
+absent from both write-ups. That is not vindication and not refutation; it is an open
+question about a lever nobody else chose to discuss.
+
+### What the top of the board did that this project did not
+
+| | |
+|---|---|
+| Pair and feature-on-feature statistics | Keanan lists these among his useful families; none were built here |
+| Model-family breadth | Keanan measured 21 level-1 families; this project used LightGBM, one NN and XGBoost |
+| Keeping deliberately weak members | 50 individually weak public models added +0.000060 to his blend, against +0.000013 for a random control of the same size |
+| Negative stack weights | Subtracting 25% of a public-only stack and 10% of a Rank-Gauss stack moved his OOF 0.970820 → 0.970849 |
+| Pooling public OOFs | 350 of his 556 streams came from other competitors; this project used none |
+| Sheer volume | 456 models for 1st, 556 streams for 7th, against 26 here |
+
+The first four are cheap and were simply not tried. The last two are strategic choices rather
+than oversights: pooling public predictions is a different game from building an independent
+solution, and volume is what an agent swarm buys.
+
+### What I would do differently
+
+1. Re-open missingness as **value recovery**, not indicator features — the constraint already
+   pins some missing values exactly, and that block was never extended past bounds.
+2. Add pair and feature-on-feature statistics, the one cheap feature family on the winners'
+   list with no counterpart here.
+3. Widen the model zoo before widening the stack. The ledger already shows that hyperparameter
+   variants earn zero weight while different *representations* earn most of it, and a
+   different architecture is a different representation.
+4. Allow negative weights in the hill-climb. It currently cannot subtract a member, so an
+   over-represented error direction has no way out.
+5. Record the private-leaderboard rank, and report it beside the public one.
 
 ## Setup
 
@@ -115,12 +256,12 @@ This downloads and extracts `train.csv`, `test.csv`, and `sample_submission.csv`
 | Path | Purpose |
 |---|---|
 | `data/raw/` | Original competition data (gitignored, rebuild with `pixi run data`) |
-| `data/processed/` | Cleaned and transformed outputs |
+| `data/processed/` | Cleaned and transformed outputs, including `members/` |
 | `notebooks/` | Exploratory analysis (marimo apps) |
 | `src/smartphone_addiction/` | Reusable Python package (features, models, submission helpers) |
 | `submissions/` | Generated submission files (gitignored) |
-| `tests/` | Unit tests |
-| `docs/figures/` | Exported figures referenced in write-ups |
+| `tests/` | Unit tests, including the leakage battery |
+| `docs/figures/` | Exported figures referenced above, plus their Vega-Lite specs |
 
 ## Development
 
@@ -130,6 +271,7 @@ pixi run format      # auto-format with ruff
 pixi run lint        # check style with ruff
 pixi run typecheck   # check types with ty
 pixi run test        # run pytest
+pixi run figures     # redraw docs/figures from the ledger (needs no data)
 ```
 
 Notebooks are [marimo](https://marimo.io) apps — plain `.py` files that diff cleanly. Open one with:
@@ -141,9 +283,30 @@ pixi run marimo edit notebooks/<name>.py
 ## Reproducing the results
 
 ```bash
-pixi run python -m smartphone_addiction.baseline   # raw-feature baseline  -> submissions/lgbm_baseline.csv
-pixi run python -m smartphone_addiction.pipeline   # full pipeline         -> submissions/lgbm_pipeline.csv
+pixi run python -m smartphone_addiction.baseline   # raw-feature baseline -> submissions/lgbm_baseline.csv
+pixi run python -m smartphone_addiction.pipeline   # full pipeline        -> submissions/lgbm_pipeline.csv
+pixi run members                                   # every stack member   -> data/processed/members/
+pixi run python -m smartphone_addiction.stack --submit   # hill-climb stack -> submissions/lgbm_stack.csv
 ```
 
-Both are deterministic at seed 42 and write out-of-fold predictions to `data/processed/`
-so any later comparison can be run as a paired same-fold test.
+All of these are deterministic at seed 42 and write out-of-fold predictions to
+`data/processed/`, so any later comparison can be run as a paired same-fold test.
+`pixi run members` is the expensive step — six arms × 5 folds on 691,369 rows.
+
+### What reproduces, and what does not
+
+**The 0.97013 leaderboard score does not reproduce from this repository, and it is worth
+being exact about why.** That submission was a 26-member stack drawn from 29 candidate arms
+assembled over the competition. The ledger above names the arms that mattered, but the full
+set of recipes was never committed, and one weight-earning member was an embedding neural
+network whose framework is not a dependency of this project. Those arms are gone.
+
+What [`members.py`](src/smartphone_addiction/members.py) rebuilds instead is a **documented,
+reduced member set** — four feature subsets plus XGBoost and CatBoost for model-class
+diversity — chosen to reproduce the *finding* rather than the score. The four zero-weight
+hyperparameter variants (`linear_tree`, `extra_trees`, DART, ExtraTrees) are absent because
+they were refuted, not because they were overlooked. `stack.py` reports its own honest
+held-out number for whatever member set it finds.
+
+Everything else on this page — the baseline, the pipeline, the gain decomposition, and the
+leakage tests — reproduces exactly.

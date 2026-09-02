@@ -29,6 +29,15 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.ty.environment]
 python-version = "3.11"
 
+# altair's mark_*() helpers are generically typed, so ty cannot see that they return
+# a Chart and reads every .mark_x().encode() chain as an unresolved attribute. The
+# specs are validated for real by `pixi run figures`, which raises on a bad encoding.
+[[tool.ty.overrides]]
+include = ["src/smartphone_addiction/figures.py"]
+
+[tool.ty.overrides.rules]
+unresolved-attribute = "ignore"
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"

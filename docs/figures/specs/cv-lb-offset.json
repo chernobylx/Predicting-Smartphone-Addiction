@@ -1,0 +1,387 @@
+{
+ "config": {
+  "view": {
+   "continuousWidth": 300,
+   "continuousHeight": 300,
+   "stroke": null
+  },
+  "axis": {
+   "domain": false,
+   "grid": true,
+   "gridColor": "#e6e5e1",
+   "gridWidth": 1,
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "tickColor": "#e6e5e1",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11,
+   "titleFontWeight": "normal"
+  },
+  "legend": {
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "symbolStrokeWidth": 0,
+   "symbolType": "square",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11
+  },
+  "text": {
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"
+  },
+  "title": {
+   "anchor": "start",
+   "color": "#0b0b0b",
+   "dy": -6,
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "fontSize": 13,
+   "fontWeight": 600
+  }
+ },
+ "vconcat": [
+  {
+   "data": {
+    "name": "data-8b7a0832f17e4252c6b1447778fa8d50"
+   },
+   "mark": {
+    "type": "line",
+    "point": {
+     "filled": true,
+     "size": 60
+    },
+    "strokeWidth": 2
+   },
+   "encoding": {
+    "color": {
+     "field": "kind",
+     "legend": {
+      "direction": "horizontal",
+      "fillColor": "#fcfcfb",
+      "orient": "bottom-right",
+      "padding": 6
+     },
+     "scale": {
+      "domain": [
+       "CV (OOF)",
+       "Public LB"
+      ],
+      "range": [
+       "#2a78d6",
+       "#eb6834"
+      ]
+     },
+     "title": null,
+     "type": "nominal"
+    },
+    "tooltip": [
+     {
+      "field": "submission",
+      "type": "nominal"
+     },
+     {
+      "field": "note",
+      "type": "nominal"
+     },
+     {
+      "field": "kind",
+      "type": "nominal"
+     },
+     {
+      "field": "auc",
+      "format": ".6f",
+      "type": "quantitative"
+     },
+     {
+      "field": "rank",
+      "type": "quantitative"
+     }
+    ],
+    "x": {
+     "axis": {
+      "labelAngle": 0
+     },
+     "field": "submission",
+     "sort": [
+      "baseline",
+      "pipeline",
+      "stack-7",
+      "stack-14",
+      "stack-18",
+      "stack-26"
+     ],
+     "title": null,
+     "type": "nominal"
+    },
+    "y": {
+     "field": "auc",
+     "scale": {
+      "nice": true,
+      "zero": false
+     },
+     "title": "ROC-AUC",
+     "type": "quantitative"
+    }
+   },
+   "height": 190,
+   "title": "CV tracks the leaderboard, submission after submission",
+   "width": 520
+  },
+  {
+   "layer": [
+    {
+     "mark": {
+      "type": "rule",
+      "color": "#c8c7c2",
+      "strokeWidth": 1
+     },
+     "encoding": {
+      "y": {
+       "field": "m",
+       "scale": {
+        "domain": [
+         0.001,
+         0.0016
+        ],
+        "nice": false,
+        "zero": false
+       },
+       "title": "LB - CV",
+       "type": "quantitative"
+      }
+     }
+    },
+    {
+     "mark": {
+      "type": "text",
+      "align": "left",
+      "baseline": "bottom",
+      "color": "#52514e",
+      "dy": -3,
+      "fontSize": 10
+     },
+     "encoding": {
+      "text": {
+       "field": "label",
+       "type": "nominal"
+      },
+      "x": {
+       "value": 3
+      },
+      "y": {
+       "field": "m",
+       "scale": {
+        "domain": [
+         0.001,
+         0.0016
+        ],
+        "nice": false,
+        "zero": false
+       },
+       "type": "quantitative"
+      }
+     }
+    },
+    {
+     "data": {
+      "name": "data-b5f1a6382b3eba81267fcb0f8adb6393"
+     },
+     "mark": {
+      "type": "line",
+      "color": "#2a78d6",
+      "point": {
+       "filled": true,
+       "size": 60
+      },
+      "strokeWidth": 2
+     },
+     "encoding": {
+      "tooltip": [
+       {
+        "field": "submission",
+        "type": "nominal"
+       },
+       {
+        "field": "offset",
+        "format": ".6f",
+        "type": "quantitative"
+       }
+      ],
+      "x": {
+       "axis": {
+        "labelAngle": 0
+       },
+       "field": "submission",
+       "sort": [
+        "baseline",
+        "pipeline",
+        "stack-7",
+        "stack-14",
+        "stack-18",
+        "stack-26"
+       ],
+       "title": null,
+       "type": "nominal"
+      },
+      "y": {
+       "axis": {
+        "format": ".4f"
+       },
+       "field": "offset",
+       "scale": {
+        "domain": [
+         0.001,
+         0.0016
+        ],
+        "nice": false,
+        "zero": false
+       },
+       "title": "LB - CV",
+       "type": "quantitative"
+      }
+     }
+    }
+   ],
+   "data": {
+    "name": "data-2428b7422efb16dda62b10185c16e0bc"
+   },
+   "height": 120,
+   "title": "The gap never inverts, but it is not constant: it narrows",
+   "width": 520
+  }
+ ],
+ "resolve": {
+  "scale": {
+   "x": "shared"
+  }
+ },
+ "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json",
+ "datasets": {
+  "data-8b7a0832f17e4252c6b1447778fa8d50": [
+   {
+    "submission": "baseline",
+    "note": "raw features",
+    "kind": "CV (OOF)",
+    "auc": 0.963947,
+    "rank": 1761
+   },
+   {
+    "submission": "baseline",
+    "note": "raw features",
+    "kind": "Public LB",
+    "auc": 0.96541,
+    "rank": 1761
+   },
+   {
+    "submission": "pipeline",
+    "note": "representation",
+    "kind": "CV (OOF)",
+    "auc": 0.968069,
+    "rank": 904
+   },
+   {
+    "submission": "pipeline",
+    "note": "representation",
+    "kind": "Public LB",
+    "auc": 0.96947,
+    "rank": 904
+   },
+   {
+    "submission": "stack-7",
+    "note": "7 members",
+    "kind": "CV (OOF)",
+    "auc": 0.96863,
+    "rank": 821
+   },
+   {
+    "submission": "stack-7",
+    "note": "7 members",
+    "kind": "Public LB",
+    "auc": 0.96982,
+    "rank": 821
+   },
+   {
+    "submission": "stack-14",
+    "note": "+ XGBoost",
+    "kind": "CV (OOF)",
+    "auc": 0.968738,
+    "rank": 777
+   },
+   {
+    "submission": "stack-14",
+    "note": "+ XGBoost",
+    "kind": "Public LB",
+    "auc": 0.96994,
+    "rank": 777
+   },
+   {
+    "submission": "stack-18",
+    "note": "+ ES-reclaim, NN",
+    "kind": "CV (OOF)",
+    "auc": 0.968955,
+    "rank": 740
+   },
+   {
+    "submission": "stack-18",
+    "note": "+ ES-reclaim, NN",
+    "kind": "Public LB",
+    "auc": 0.97008,
+    "rank": 740
+   },
+   {
+    "submission": "stack-26",
+    "note": "+ feature subsets",
+    "kind": "CV (OOF)",
+    "auc": 0.96901,
+    "rank": 728
+   },
+   {
+    "submission": "stack-26",
+    "note": "+ feature subsets",
+    "kind": "Public LB",
+    "auc": 0.97013,
+    "rank": 728
+   }
+  ],
+  "data-2428b7422efb16dda62b10185c16e0bc": [
+   {
+    "m": 0.0012501666666666668,
+    "label": "mean +0.00125"
+   }
+  ],
+  "data-b5f1a6382b3eba81267fcb0f8adb6393": [
+   {
+    "submission": "baseline",
+    "offset": 0.001463,
+    "rank": 1761
+   },
+   {
+    "submission": "pipeline",
+    "offset": 0.001401,
+    "rank": 904
+   },
+   {
+    "submission": "stack-7",
+    "offset": 0.00119,
+    "rank": 821
+   },
+   {
+    "submission": "stack-14",
+    "offset": 0.001202,
+    "rank": 777
+   },
+   {
+    "submission": "stack-18",
+    "offset": 0.001125,
+    "rank": 740
+   },
+   {
+    "submission": "stack-26",
+    "offset": 0.00112,
+    "rank": 728
+   }
+  ]
+ }
+}

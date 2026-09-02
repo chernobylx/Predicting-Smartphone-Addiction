@@ -1,0 +1,158 @@
+{
+ "config": {
+  "view": {
+   "continuousWidth": 300,
+   "continuousHeight": 300,
+   "stroke": null
+  },
+  "axis": {
+   "domain": false,
+   "grid": true,
+   "gridColor": "#e6e5e1",
+   "gridWidth": 1,
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "tickColor": "#e6e5e1",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11,
+   "titleFontWeight": "normal"
+  },
+  "legend": {
+   "labelColor": "#52514e",
+   "labelFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "labelFontSize": 11,
+   "symbolStrokeWidth": 0,
+   "symbolType": "square",
+   "titleColor": "#52514e",
+   "titleFont": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "titleFontSize": 11
+  },
+  "text": {
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif"
+  },
+  "title": {
+   "anchor": "start",
+   "color": "#0b0b0b",
+   "dy": -6,
+   "font": "Ubuntu Sans, DejaVu Sans, Helvetica, Arial, sans-serif",
+   "fontSize": 13,
+   "fontWeight": 600
+  }
+ },
+ "layer": [
+  {
+   "mark": {
+    "type": "bar",
+    "color": "#2a78d6",
+    "cornerRadiusEnd": 4,
+    "height": 18
+   },
+   "encoding": {
+    "tooltip": [
+     {
+      "field": "source",
+      "type": "nominal"
+     },
+     {
+      "field": "weight",
+      "format": ".3f",
+      "type": "quantitative"
+     }
+    ],
+    "x": {
+     "field": "weight",
+     "scale": {
+      "domain": [
+       0,
+       0.16
+      ]
+     },
+     "title": "Combined weight in the 26-member stack",
+     "type": "quantitative"
+    },
+    "y": {
+     "axis": {
+      "labelFontSize": 11,
+      "labelLimit": 400
+     },
+     "field": "source",
+     "sort": [
+      "Feature subsets \u2014 struct_imp, no_te",
+      "Different model class \u2014 embedding NN",
+      "Hyperparameter variants \u2014 linear_tree, extra_trees, DART, ExtraTrees"
+     ],
+     "title": null,
+     "type": "nominal"
+    }
+   }
+  },
+  {
+   "mark": {
+    "type": "text",
+    "align": "left",
+    "color": "#52514e",
+    "dx": 6,
+    "fontSize": 11
+   },
+   "encoding": {
+    "text": {
+     "field": "weight",
+     "format": ".3f",
+     "type": "quantitative"
+    },
+    "x": {
+     "field": "weight",
+     "scale": {
+      "domain": [
+       0,
+       0.16
+      ]
+     },
+     "title": "Combined weight in the 26-member stack",
+     "type": "quantitative"
+    },
+    "y": {
+     "axis": {
+      "labelFontSize": 11,
+      "labelLimit": 400
+     },
+     "field": "source",
+     "sort": [
+      "Feature subsets \u2014 struct_imp, no_te",
+      "Different model class \u2014 embedding NN",
+      "Hyperparameter variants \u2014 linear_tree, extra_trees, DART, ExtraTrees"
+     ],
+     "title": null,
+     "type": "nominal"
+    }
+   }
+  }
+ ],
+ "data": {
+  "name": "data-c570d84d1c90a79dcc6c0f3c13aad7cb"
+ },
+ "height": {
+  "step": 46
+ },
+ "title": "Diversity has to come from what the model sees, not how it fits",
+ "width": 430,
+ "$schema": "https://vega.github.io/schema/vega-lite/v6.4.1.json",
+ "datasets": {
+  "data-c570d84d1c90a79dcc6c0f3c13aad7cb": [
+   {
+    "source": "Feature subsets \u2014 struct_imp, no_te",
+    "weight": 0.133
+   },
+   {
+    "source": "Different model class \u2014 embedding NN",
+    "weight": 0.1
+   },
+   {
+    "source": "Hyperparameter variants \u2014 linear_tree, extra_trees, DART, ExtraTrees",
+    "weight": 0.0
+   }
+  ]
+ }
+}
